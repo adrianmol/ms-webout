@@ -42,6 +42,7 @@ class ManufacturerController extends AbstractController
                 $Manufactuer->setName($name)
                 ->setManufacturerId($id)
                 ->setSortOrder(0)
+                ->setStatus(1)
                 ->setImage('');
 
                 $data_response['inserted'][] = $Manufactuer->getManufacturerId();
@@ -52,7 +53,7 @@ class ManufacturerController extends AbstractController
 
                 $exist_manufacturer->setName($name);
                 
-                $data_response['updated'] = [
+                $data_response['updated'][] = [
                     'manufacturer_id'   => $exist_manufacturer->getManufacturerId(),
                     'name'              => $exist_manufacturer->getName()
                 ];
@@ -61,7 +62,6 @@ class ManufacturerController extends AbstractController
 
         $entityManager->flush();
 
-        dd($data_response);
         return $this->render('prisma/manufacturer/index.html.twig', [
             'data' => $data_response,
         ]);
