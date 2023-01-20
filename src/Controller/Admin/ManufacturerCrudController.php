@@ -24,20 +24,22 @@ class ManufacturerCrudController extends AbstractCrudController
     {
         $getManufacturer = Action::new('getManufacturer')
         ->linkToRoute('app_prisma_manufacturer')
-        ->createAsGlobalAction()
-;
+        ->addCssClass('btn btn-primary')
+        ->createAsGlobalAction();
+        
         return $actions
-            // ...
             ->add(Crud::PAGE_INDEX, $getManufacturer)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_EDIT, Action::SAVE_AND_ADD_ANOTHER);
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT);
     }
 
 
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id'),
+            //IdField::new('id'),
+            IdField::new('manufacturer_id'),
             TextField::new('name'),
             IdField::new('sort_order'),
             // ImageField::new('image'),
