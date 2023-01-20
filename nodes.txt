@@ -8,3 +8,6 @@ php bin/console make:controller
 php bin/console d:m:m 
 
 yarn run build
+
+//Clear cache
+php bin/console cache:clear 
