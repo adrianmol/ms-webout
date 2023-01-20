@@ -10,5 +10,6 @@ class Prisma {
     public static string $URL = 'https://ecommercews.megasoft.gr/eCommerceWebService.asmx';
 
     public static string $GET_MANUFACTURER  = 'GetManufacturers';
+    public static string $GET_CATEGORIES  = 'GetItemGroups';
 
 }
