@@ -1,0 +1,36 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title %}
+	Dashboard
+{% endblock %}
+
+{% block main %}
+	<div class="row">
+		<div class="col-6">
+			<div class="card">
+				<h5 class="card-header">Manufacturer</h5>
+				<div class="card-body">
+					<h5 class="card-title">Total:
+						<strong>{{ allManufacturers }}
+						</strong>
+					</h5>
+					<p class="card-text">All manufacturers from Prisma</p>
+					<a href="#" class="btn btn-success">show manufacturer</a>
+				</div>
+			</div>
+		</div>
+		<div class="col-6">
+			<div class="card">
+				<h5 class="card-header">Categories</h5>
+				<div class="card-body">
+					<h5 class="card-title">Total:
+						<strong>{{ allCategories }}
+						</strong>
+					</h5>
+					<p class="card-text">All categories from Prisma</p>
+					<a href="#" class="btn btn-success">show categories</a>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
