@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Persistence\ManagerRegistry;
 
 class ManufacturerController extends AbstractController
@@ -21,10 +22,9 @@ class ManufacturerController extends AbstractController
     }
 
     #[Route('/prisma/manufacturer', name: 'app_prisma_manufacturer')]
-    public function index(ManagerRegistry $doctrine): Response
-    {
+    public function index(ManagerRegistry $doctrine, Request $request): Response
+    {  
         $entityManager = $doctrine->getManager();
-        
         $prisma_manufacturers = $this->getManufacturer();
 
         $data_response = array();
@@ -34,24 +34,28 @@ class ManufacturerController extends AbstractController
             $id = $prisma_manufacturer['ManufacturerID'];
             $name = $prisma_manufacturer['ManufacturerName'];
 
-            $Manufactuer = new \App\Entity\Manufacturer;
+            $Manufacturer = new \App\Entity\Manufacturer;
             $exist_manufacturer = $doctrine->getRepository(\App\Entity\Manufacturer::class)->findOneBy(['manufacturer_id' => $id]);
 
             if(!$exist_manufacturer){
                 
-                $Manufactuer->setName($name)
+                $Manufacturer->setName($name)
                 ->setManufacturerId($id)
                 ->setSortOrder(0)
                 ->setStatus(1)
+                ->setDateAdded(new \DateTime())
+                ->setDateModified(new \DateTime())
                 ->setImage('');
 
-                $data_response['inserted'][] = $Manufactuer->getManufacturerId();
+                $data_response['inserted'][] = $Manufacturer->getManufacturerId();
 
-                $entityManager->persist($Manufactuer);
+                $entityManager->persist($Manufacturer);
 
             }else{
 
-                $exist_manufacturer->setName($name);
+                $exist_manufacturer
+                ->setName($name)
+                ->setDateModified(new \DateTime());
                 
                 $data_response['updated'][] = [
                     'manufacturer_id'   => $exist_manufacturer->getManufacturerId(),
@@ -62,9 +66,14 @@ class ManufacturerController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->render('prisma/manufacturer/index.html.twig', [
-            'data' => $data_response,
-        ]);
+        return $this->redirectToRoute(
+        'admin',
+        ['crudAction'=>'index',
+        'crudControllerFqcn'=>'App\Controller\Admin\ManufacturerCrudController']);
+        
+        // return $this->render('prisma/manufacturer/index.html.twig', [
+        //     'data' => $data_response,
+        // ]);
     }
 
     public function getManufacturer(){
