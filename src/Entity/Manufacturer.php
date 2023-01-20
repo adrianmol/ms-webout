@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ManufacturerRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ManufacturerRepository::class)]
@@ -27,6 +28,12 @@ class Manufacturer
 
     #[ORM\Column]
     private ?bool $status = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $date_added = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $date_modified = null;
 
     public function getId(): ?int
     {
@@ -89,6 +96,30 @@ class Manufacturer
     public function setStatus(bool $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getDateAdded(): ?\DateTimeInterface
+    {
+        return $this->date_added;
+    }
+
+    public function setDateAdded(\DateTimeInterface $date_added): self
+    {
+        $this->date_added = $date_added;
+
+        return $this;
+    }
+
+    public function getDateModified(): ?\DateTimeInterface
+    {
+        return $this->date_modified;
+    }
+
+    public function setDateModified(\DateTimeInterface $date_modified): self
+    {
+        $this->date_modified = $date_modified;
 
         return $this;
     }
