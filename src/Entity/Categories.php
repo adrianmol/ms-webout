@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CategoriesRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,9 +21,6 @@ class Categories
 
     #[ORM\Column]
     private ?int $parent_id = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $title = null;
 
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $category_code = null;
@@ -40,6 +39,14 @@ class Categories
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date_modified = null;
+
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: CategoryDescription::class)]
+    private Collection $category_description;
+
+    public function __construct()
+    {
+        $this->category_description = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -70,21 +77,16 @@ class Categories
         return $this;
     }
 
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
     public function getCategoryCode(): ?string
     {
         return $this->category_code;
+    }
+
+    public function getCategoryName(): ?string
+    {
+        $category =$this->getCategoryDescription()->get(0);
+
+        return $category->getName();
     }
 
     public function setCategoryCode(?string $category_code): self
@@ -150,6 +152,36 @@ class Categories
     public function setDateModified(\DateTimeInterface $date_modified): self
     {
         $this->date_modified = $date_modified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CategoryDescription>
+     */
+    public function getCategoryDescription(): Collection
+    {
+        return $this->category_description;
+    }
+
+    public function addCategoryDescription(CategoryDescription $categoryDescription): self
+    {
+        if (!$this->category_description->contains($categoryDescription)) {
+            $this->category_description->add($categoryDescription);
+            $categoryDescription->setCategories($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategoryDescription(CategoryDescription $categoryDescription): self
+    {
+        if ($this->category_description->removeElement($categoryDescription)) {
+            // set the owning side to null (unless already changed)
+            if ($categoryDescription->getCategories() === $this) {
+                $categoryDescription->setCategories(null);
+            }
+        }
 
         return $this;
     }
