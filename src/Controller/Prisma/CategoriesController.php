@@ -4,6 +4,7 @@ namespace App\Controller\Prisma;
 
 use Enum\Prisma;
 use App\Entity\Categories;
+use App\Entity\CategoryDescription;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -42,13 +43,23 @@ class CategoriesController extends AbstractController
 
 
             $category = new \App\Entity\Categories;
-            $exist_category = $doctrine->getRepository(\App\Entity\Categories::class)->findOneBy(['category_id' => $id]);
+            $categoryDescription = new \App\Entity\CategoryDescription;
             
+            $exist_category = $doctrine->getRepository(\App\Entity\Categories::class)->findOneBy(['category_id' => $id]);
+
+            $exist_category_description = $doctrine
+            ->getRepository(\App\Entity\CategoryDescription::class)
+            ->findOneBy(['category_id' => $id]);
+
             if(!$exist_category){
+
+                $categoryDescription->setName($title)
+                                    ->setLanguageId(2);
+                
                 $category->setCategoryId($id)
                     ->setParentId($parent_id)
                     ->setCategoryCode($code)
-                    ->setTitle($title)
+                    ->addCategoryDescription($categoryDescription)
                     ->setStatus($status)
                     ->setOrderSort($sort)
                     ->setEshopStatus($eshop_status)
@@ -56,14 +67,19 @@ class CategoriesController extends AbstractController
                     ->setDateModified(new \DateTime());
 
                     $entityManager->persist($category);
+                    $entityManager->persist($categoryDescription);
             }else{
+
                 $exist_category->setParentId($parent_id)
                 ->setCategoryCode($code)
-                ->setTitle($title)
                 ->setStatus($status)
                 ->setOrderSort($sort)
                 ->setEshopStatus($eshop_status)
-                ->setDateModified(new \DateTime());
+                ->setDateModified(new \DateTime())
+                ->getCategoryDescription()
+                ->get(0)
+                ->setName($title)
+                ->setLanguageId(2);
             }
         }
 
