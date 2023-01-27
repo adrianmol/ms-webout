@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use App\Repository\ManufacturerRepository;
-
+use Enum\Opencart;
 
 class ManufacturersController extends AbstractController
 {
@@ -31,12 +31,22 @@ class ManufacturersController extends AbstractController
     function all(): Response
     {
 
-        // $keyword = $this->client->query->get('q') ?? '';
-        // $offset = $this->client->query->get('offset')?? 0;
-        // $limit = $this->client->query->get('limit') ?? 10;
-        
-        $data = $this->manufacturerRepository
-        ->findAll();
-        return $this->json($data);
+        $manufacturers = $this->manufacturerRepository
+                        ->findAll();
+
+        $response = $this->sendManufacturers($manufacturers);
+
+        return $this->json($response);
+    }
+
+    private function sendManufacturers($manufacturers)
+    {
+        $response = $this->client->request('POST', Opencart::$URL .'/'. Opencart::$GET_MANUFACTURER, [
+            'headers' => ['X-OC-RESTADMIN-ID' => Opencart::$TOKEN_API,
+                          'Content-Type'      => 'application/json'],
+            'body'    => json_encode($manufacturers)
+        ]); 
+
+        return json_decode(($response->getContent()),true);
     }
 }
