@@ -11,5 +11,6 @@ class Prisma {
 
     public static string $GET_MANUFACTURER  = 'GetManufacturers';
     public static string $GET_CATEGORIES  = 'GetItemGroups';
+    public static string $GET_PRODUCTS = 'GetProducts';
 
 }

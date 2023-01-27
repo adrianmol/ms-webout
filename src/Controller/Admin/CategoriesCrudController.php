@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 
 class CategoriesCrudController extends AbstractCrudController
@@ -39,7 +40,6 @@ class CategoriesCrudController extends AbstractCrudController
     {
         return $filters
             ->add('category_id')
-            ->add('title')
             ->add(BooleanFilter::new('status'))
             ->add(BooleanFilter::new('eshop_status'))
         ;
@@ -50,7 +50,7 @@ class CategoriesCrudController extends AbstractCrudController
         return [
             IdField::new('category_id'),
             IdField::new('parent_id'),
-            TextField::new('title'),
+            TextField::new('categoryName'),
             TextField::new('category_code'),
             BooleanField::new('status'),
             BooleanField::new('eshop_status'),
