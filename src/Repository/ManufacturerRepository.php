@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Manufacturer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Query;
 
 /**
  * @extends ServiceEntityRepository<Manufacturer>
@@ -49,6 +50,14 @@ class ManufacturerRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function findAll(){
+
+        $qb = $this->createQueryBuilder('m');
+        $query = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+
+        return $query;
     }
 
 //    /**
