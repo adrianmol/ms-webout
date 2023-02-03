@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Products;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Query;
 
 /**
  * @extends ServiceEntityRepository<Products>
@@ -37,6 +38,62 @@ class ProductsRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function getAllProductsFromOC($param = [])
+    {
+
+        $qb = $this->createQueryBuilder('p')
+                   ->leftJoin('p.productDescriptions', 'pd')
+                   ->leftJoin('p.category', 'pc')
+                   ->addSelect('p','pd','pc');
+        $query = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+        
+        $oc_products = array();
+        
+        foreach($query as $product){
+
+            $categories = array_map(function($value) {
+                return $value['category_id'];
+            },$product['category']);
+
+            $oc_products[] = [
+                'id'            => $product['product_id'],
+                'model'         => $product['model'],
+                'sku'           => $product['sku'],
+                'mpn'           => $product['mpn'],
+                'upc'           => '',
+                'ean'           => '',
+                'jan'           => '',
+                'isbn'          => '',
+                'location'      => '',
+                'minimum'       => 1,
+                'subtract'      => 1,
+                'points'        => 0,
+                'subtract'      => 1,
+                'subtract'      => 1,
+                'subtract'      => 1,
+                'shipping'      => 1,
+                'weight_class_id'=> 1,
+                'length'        => 0,
+                'width'         => 0,
+                'height'        => 0,
+                'length_class_id'=> 1,
+                'tax_class_id'  => 1,
+                'sort_order'    => 0,
+                'discount_price'=> '',
+                'price'         => $product['price_with_vat'],
+                'quantity'      => $product['quantity'],
+                'manufacturer_id'   => $product['manufacturer_id'],
+                'weight'        => $product['weight'],
+                'status'        => $product['status'],
+                'product_category'    => $categories,
+                'product_description' => $product['productDescriptions'],
+                'product_store' => 0 
+            ];
+        }
+
+        return $oc_products;
     }
 
 //    /**
