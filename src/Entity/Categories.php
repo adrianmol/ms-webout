@@ -43,9 +43,13 @@ class Categories
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: CategoryDescription::class)]
     private Collection $category_description;
 
+    #[ORM\ManyToMany(targetEntity: Products::class, mappedBy: 'category')]
+    private Collection $products;
+
     public function __construct()
     {
         $this->category_description = new ArrayCollection();
+        $this->products = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -181,6 +185,33 @@ class Categories
             if ($categoryDescription->getCategories() === $this) {
                 $categoryDescription->setCategories(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Products>
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Products $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products->add($product);
+            $product->addCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Products $product): self
+    {
+        if ($this->products->removeElement($product)) {
+            $product->removeCategory($this);
         }
 
         return $this;
