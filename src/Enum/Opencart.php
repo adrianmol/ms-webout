@@ -11,5 +11,6 @@ class Opencart {
 
     public static string $GET_MANUFACTURER  = 'prismaManufacturers';
     public static string $GET_CATEGORIES  = 'prismaCategories';
+    public static string $GET_PRODUCTS  = 'prismaProducts';
 
 }
