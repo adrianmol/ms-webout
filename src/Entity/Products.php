@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProductsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -55,6 +57,18 @@ class Products
 
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $status = null;
+
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductDescription::class, orphanRemoval: true)]
+    private Collection $productDescriptions;
+
+    #[ORM\ManyToMany(targetEntity: Categories::class, inversedBy: 'products')]
+    private Collection $category;
+
+    public function __construct()
+    {
+        $this->productDescriptions = new ArrayCollection();
+        $this->category = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -225,6 +239,60 @@ class Products
     public function setPriceWithVat(float $price_with_vat): self
     {
         $this->price_with_vat = $price_with_vat;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductDescription>
+     */
+    public function getProductDescriptions(): Collection
+    {
+        return $this->productDescriptions;
+    }
+
+    public function addProductDescription(ProductDescription $productDescription): self
+    {
+        if (!$this->productDescriptions->contains($productDescription)) {
+            $this->productDescriptions->add($productDescription);
+            $productDescription->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductDescription(ProductDescription $productDescription): self
+    {
+        if ($this->productDescriptions->removeElement($productDescription)) {
+            // set the owning side to null (unless already changed)
+            if ($productDescription->getProduct() === $this) {
+                $productDescription->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, categories>
+     */
+    public function getCategory(): Collection
+    {
+        return $this->category;
+    }
+
+    public function addCategory(categories $category): self
+    {
+        if (!$this->category->contains($category)) {
+            $this->category->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(categories $category): self
+    {
+        $this->category->removeElement($category);
 
         return $this;
     }
