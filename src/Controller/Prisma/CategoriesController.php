@@ -47,10 +47,6 @@ class CategoriesController extends AbstractController
             
             $exist_category = $doctrine->getRepository(\App\Entity\Categories::class)->findOneBy(['category_id' => $id]);
 
-            $exist_category_description = $doctrine
-            ->getRepository(\App\Entity\CategoryDescription::class)
-            ->findOneBy(['category_id' => $id]);
-
             if(!$exist_category){
 
                 $categoryDescription->setName($title)
