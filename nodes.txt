@@ -11,3 +11,7 @@ yarn run build
 
 //Clear cache
 php bin/console cache:clear 
+
+
+//Cpanel Notes
+/opt/cpanel/ea-php81/root/usr/bin/php  /opt/cpanel/composer/bin/composer update
