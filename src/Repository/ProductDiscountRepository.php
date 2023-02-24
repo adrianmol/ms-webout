@@ -47,7 +47,10 @@ class ProductDiscountRepository extends ServiceEntityRepository
 
         $query = $this->createQueryBuilder('pd');
 
-
+        if (isset($filters['product_id'])) {
+            $query->andWhere('pd.product = :val')
+                ->setParameter('val', $filters['product_id']);
+        }
 
         return $query->getQuery()
             ->getResult();
