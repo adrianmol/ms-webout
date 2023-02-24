@@ -8,7 +8,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use App\Repository\ProductsRepository;
 use App\Repository\ProductVariationsRepository;
-use Enum\Opencart;
+use App\Repository\ProductDiscountRepository;
+use App\Enum\Opencart;
 
 class ProductsController extends AbstractController
 {
@@ -16,15 +17,18 @@ class ProductsController extends AbstractController
     private HttpClientInterface $client;
     private ProductsRepository $productsRepository;
     private ProductVariationsRepository $productVariationsRepository;
+    private ProductDiscountRepository $productDiscountRepository;
 
     public function __construct(
         HttpClientInterface $client,
         ProductsRepository $productsRepository,
-        ProductVariationsRepository $productVariationsRepository
+        ProductVariationsRepository $productVariationsRepository,
+        ProductDiscountRepository $productDiscountRepository
     ) {
         $this->client = $client;
         $this->productsRepository = $productsRepository;
         $this->productVariationsRepository = $productVariationsRepository;
+        $this->productDiscountRepository = $productDiscountRepository;
     }
 
     #[Route('/v1/products', name: 'app_v1_products')]
@@ -49,6 +53,28 @@ class ProductsController extends AbstractController
         return $this->json($response);
     }
 
+    #[Route('/v1/products/discount', name: 'app_v1_products_options')]
+    public function sendProductDiscount(): Response
+    {
+        $product_discounts = $this->prepareProductsDiscount();
+        $response = $this->sendData($product_discounts, Opencart::$GET_PRODUCTS_DISCOUNT);
+
+        return $this->json($response);
+    }
+
+    private function sendData($data, $request_url)
+    {
+        $response = $this->client->request('POST', Opencart::$URL . '/' . $request_url, [
+            'headers' => [
+                'X-OC-RESTADMIN-ID' => Opencart::$TOKEN_API,
+                'Content-Type'      => 'application/json'
+            ],
+            'body'    => json_encode($data)
+        ]);
+        dd($response->getContent());
+
+        return json_decode(($response->getContent()), true);
+    }
 
     private function sendProducts($products)
     {
@@ -151,6 +177,29 @@ class ProductsController extends AbstractController
         $product_variations = $this->arrayGroupBy('product_master_id', $product_variations);
 
         return $product_variations;
+    }
+
+    private function prepareProductsDiscount(): array
+    {
+        $discounts = $this->productDiscountRepository
+            ->getDiscounts();
+
+        if (empty($discounts)) {
+            return [];
+        }
+        //dd($discounts);
+        $oc_discounts = array();
+        foreach ($discounts as $discount){
+
+            $oc_discounts[] = [
+                'product_id'    => $discount->getProduct()->getProductId(),
+                'customer_group_id' => $discount->getCustomerGroupId(),
+                'priority'      => $discount->getPriority(),
+                'price'         => $discount->getPrice(),
+
+            ];
+        }
+        return $oc_discounts;
     }
 
     private function arrayGroupBy($key, $data)

@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use App\Repository\OptionRepository;
-use Enum\Opencart;
+use App\Enum\Opencart;
 
 class OptionsController extends AbstractController
 {
