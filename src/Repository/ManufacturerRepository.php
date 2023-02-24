@@ -59,29 +59,43 @@ class ManufacturerRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('m');
         $query = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
 
-        array_walk($query, function (&$array) {
-
+        $manufacturers_with_no_products = array_column($this->createQueryBuilder('m')
+        ->select('m.manufacturer_id')
+        ->innerJoin(\App\Entity\Products::class, 'p' , 'WITH', 'p.manufacturer_id = m.manufacturer_id')
+        ->groupBy('m.manufacturer_id')
+        ->getQuery()
+        ->getResult(Query::HYDRATE_ARRAY), 'manufacturer_id')
+        ;
+        
+        //dd($manufacturers_with_no_products);
+        array_walk($query, function (&$array) use($manufacturers_with_no_products) {
+            
             //Add here custom fields for opencart
-            $array['manufacturer_store'] = 0;
+            if(!in_array($array['manufacturer_id'],$manufacturers_with_no_products)){
+
+                $array['manufacturer_store'] = 0;
+            }
         });
 
         return $query;
+
     }
 
-    //    /**
-    //     * @return Manufacturer[] Returns an array of Manufacturer objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('m.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+       /**
+        * @return Manufacturer[] Returns an array of Manufacturer objects
+        */
+       public function findByExampleField($value)
+       {
+           return $this->createQueryBuilder('m')
+               ->update()
+               ->set('m.status', ':status')
+               ->Where('m.manufacturer_id IN (:val)')
+               ->setParameter('val' ,[5 , 4])
+               ->setParameter('status', 0)
+               ->getQuery()
+               ->getResult()
+           ;
+       }
 
     //    public function findOneBySomeField($value): ?Manufacturer
     //    {
