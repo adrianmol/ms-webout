@@ -64,10 +64,14 @@ class Products
     #[ORM\ManyToMany(targetEntity: Categories::class, inversedBy: 'products')]
     private Collection $category;
 
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductDiscount::class)]
+    private Collection $productDiscounts;
+
     public function __construct()
     {
         $this->productDescriptions = new ArrayCollection();
         $this->category = new ArrayCollection();
+        $this->productDiscounts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -293,6 +297,36 @@ class Products
     public function removeCategory(categories $category): self
     {
         $this->category->removeElement($category);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductDiscount>
+     */
+    public function getProductDiscounts(): Collection
+    {
+        return $this->productDiscounts;
+    }
+
+    public function addProductDiscount(ProductDiscount $productDiscount): self
+    {
+        if (!$this->productDiscounts->contains($productDiscount)) {
+            $this->productDiscounts->add($productDiscount);
+            $productDiscount->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductDiscount(ProductDiscount $productDiscount): self
+    {
+        if ($this->productDiscounts->removeElement($productDiscount)) {
+            // set the owning side to null (unless already changed)
+            if ($productDiscount->getProduct() === $this) {
+                $productDiscount->setProduct(null);
+            }
+        }
 
         return $this;
     }
