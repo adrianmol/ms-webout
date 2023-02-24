@@ -2,7 +2,7 @@
 
 namespace App\Controller\Prisma;
 
-use Enum\Prisma;
+use App\Enum\Prisma;
 use App\Entity\Categories;
 use App\Entity\CategoryDescription;
 

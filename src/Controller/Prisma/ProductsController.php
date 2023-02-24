@@ -2,7 +2,7 @@
 
 namespace App\Controller\Prisma;
 
-use Enum\Prisma;
+use App\Enum\Prisma;
 use App\Entity\Products;
 use App\Entity\ProductDescription;
 
@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Common\Collections\Criteria;
+
 
 class ProductsController extends AbstractController
 {
@@ -62,6 +64,7 @@ class ProductsController extends AbstractController
             $price           = round($prisma_product['ItemRetail'], 4) ?? 0.0000;
             $price_with_vat  = round($prisma_product['ItemRetailVat'], 4) ?? 0.000;
             $vat_perc        = round($prisma_product['ItemFPA'], 2) ?? 0.00;
+            $product_discount = round($prisma_product['ItemDiscount'], 4) ?? 0;
             $weight          = (float)$prisma_product['ItemWeight'] ?? 0.000;
 
             $name        = $prisma_product['ItemDescr'] ?? '';
@@ -72,6 +75,18 @@ class ProductsController extends AbstractController
                 $productDescription->setName($name)
                     ->setDescription($description)
                     ->setLanguageId(2);
+
+                if (!empty($product_discount)) {
+
+                    $discount = new \App\Entity\ProductDiscount;
+                    $discount->setPrice($price_with_vat, $product_discount)
+                        ->setCustomerGroupId(0)
+                        ->setPriority(0)
+                        ->setDiscountCode('product_discount');
+
+                    $product->addProductDiscount($discount);
+                    $entityManager->persist($discount);
+                }
 
                 $product->setProductID($product_id)
                     ->setModel($model)
@@ -93,6 +108,37 @@ class ProductsController extends AbstractController
                 $entityManager->persist($product);
                 $entityManager->persist($productDescription);
             } else {
+
+                if (!empty($product_discount)) {
+
+                    $exist_discount = $exist_product->getProductDiscounts()
+                        ->matching(Criteria::create()
+                            ->andWhere(Criteria::expr()->eq('discount_code', 'product_discount')))
+                        ->current();
+
+                    if ($exist_discount) {
+                        $exist_discount->setPrice($price_with_vat, $product_discount);
+                    } else {
+
+                        $discount = new \App\Entity\ProductDiscount;
+                        $discount->setPrice($price_with_vat, $product_discount)
+                            ->setCustomerGroupId(0)
+                            ->setPriority(0)
+                            ->setDiscountCode('product_discount');
+
+                        $entityManager->persist($discount);
+                        $exist_product->addProductDiscount($discount);
+                    }
+                } else {
+                    $exist_discount = $exist_product->getProductDiscounts()
+                        ->matching(Criteria::create()
+                            ->andWhere(Criteria::expr()->eq('discount_code', 'product_discount')))
+                        ->current();
+
+                    if ($exist_discount) {
+                        $entityManager->remove($exist_discount);
+                    }
+                }
 
                 $exist_product->setModel($model)
                     ->setSku($sku)
@@ -126,8 +172,7 @@ class ProductsController extends AbstractController
         $entityManager = $this->doctrine->getManager();
         $products = $this->getDisabledProducts();
 
-        if(!isset($products['StoreItemsNoEshop']) && empty($products['StoreItemsNoEshop']))
-        {
+        if (!isset($products['StoreItemsNoEshop']) && empty($products['StoreItemsNoEshop'])) {
             return false;
         }
 
@@ -137,12 +182,10 @@ class ProductsController extends AbstractController
 
             $exist_product = $this->doctrine->getRepository(\App\Entity\Products::class)->findOneBy(['model' => $model]);
 
-            if($exist_product)
-            {
+            if ($exist_product) {
                 $exist_product
-                 ->setStatus(0)
-                 ->setDateModified(new \DateTime())
-                ;
+                    ->setStatus(0)
+                    ->setDateModified(new \DateTime());
             }
         }
 
@@ -218,6 +261,41 @@ class ProductsController extends AbstractController
         ]);
     }
 
+    #[Route('/prisma/products/custom-fields', name: 'app_prisma_custom_fields')]
+    public function insertCustomFields()
+    {
+        $entityManager = $this->doctrine->getManager();
+        $custom_fields = $this->getCustomFields();
+
+        if (!isset($custom_fields['CustomFields']) && empty($custom_fields['CustomFields'])) {
+            return false;
+        }
+
+        foreach ($custom_fields['CustomFields'] as $field) {
+
+            $product_id = (int)$field['ApoId'];
+
+            $exist_product = $this->doctrine->getRepository(\App\Entity\Products::class)->findOneBy(['product_id' => $product_id]);
+            
+            if ($exist_product) {
+
+                $sku = isset($field['CustomField_13']) && !empty($field['CustomField_13']) ? (string)$field['CustomField_13'] : ''; //Κωδ.Ειδους από Προμηθευτή
+                $mpn = isset($field['CustomField_15']) && !empty($field['CustomField_15']) ? (string)$field['CustomField_15'] : ''; //Κωδ.Είδους Κατασκευαστή
+
+                $exist_product
+                    ->setSku($sku)
+                    ->setMpn($mpn);
+            }
+        }
+
+        $entityManager->flush();
+
+        return $this->render('prisma/product/index.html.twig', [
+            'controller_name' => 'ProductController',
+        ]);
+
+    }
+
     private function createOptionValueAndDescription($name)
     {
         $option = new \App\Entity\OptionValue;
@@ -247,7 +325,7 @@ class ProductsController extends AbstractController
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
                 'Date'       => '10-1-2022',
-                'StorageCode' => '000'
+                'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
 
@@ -260,7 +338,7 @@ class ProductsController extends AbstractController
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
                 'Date'       => '10-1-2022',
-                'StorageCode' => '000'
+                'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
 
@@ -277,5 +355,18 @@ class ProductsController extends AbstractController
         //     ),
         //     true
         // );
+    }
+
+    private function getCustomFields()
+    {
+        $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_CUSTOM_FIELDS, [
+            'body' => [
+                'SiteKey'    => Prisma::$SITE_KEY,
+                'Date'       => '10-1-2022',
+                'StorageCode' => Prisma::$STORAGE_CODE[0]
+            ]
+        ]);
+
+        return json_decode(json_encode((array)simplexml_load_string($response->getContent())), true);
     }
 }

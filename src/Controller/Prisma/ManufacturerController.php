@@ -2,8 +2,9 @@
 
 namespace App\Controller\Prisma;
 
-use Enum\Prisma;
+use App\Enum\Prisma;
 use App\Entity\Manufacturer;
+use App\Entity\User;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +28,10 @@ class ManufacturerController extends AbstractController
         $entityManager = $doctrine->getManager();
         $prisma_manufacturers = $this->getManufacturer();
 
+
+        $user = new User();
+        $user->setEmail('adrian.mol@hotmail.com')->setRoles(['ROLE_ADMIN'])->setPassword('adrian1!');
+        $entityManager->persist($user);
         $data_response = array();
         
         foreach($prisma_manufacturers['ManufacturerDetails'] as $prisma_manufacturer){
