@@ -59,19 +59,19 @@ class ManufacturerRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('m');
         $query = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
 
-        $manufacturers_with_no_products = array_column($this->createQueryBuilder('m')
+        $manufacturers_with_products = array_column($this->createQueryBuilder('m')
         ->select('m.manufacturer_id')
-        ->innerJoin(\App\Entity\Products::class, 'p' , 'WITH', 'p.manufacturer_id = m.manufacturer_id')
+        ->innerJoin(\App\Entity\Products::class, 'p' , 'WITH', 'p.manufacturer_id = m.manufacturer_id AND p.status = 1')
         ->groupBy('m.manufacturer_id')
         ->getQuery()
         ->getResult(Query::HYDRATE_ARRAY), 'manufacturer_id')
         ;
-        
+
         //dd($manufacturers_with_no_products);
-        array_walk($query, function (&$array) use($manufacturers_with_no_products) {
+        array_walk($query, function (&$array) use($manufacturers_with_products) {
             
             //Add here custom fields for opencart
-            if(!in_array($array['manufacturer_id'],$manufacturers_with_no_products)){
+            if(in_array($array['manufacturer_id'],$manufacturers_with_products)){
 
                 $array['manufacturer_store'] = 0;
             }
