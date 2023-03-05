@@ -6,4 +6,12 @@ $primary: darken(#428bca, 20%);
 // the ~ allows you to reference things in node_modules
 @import "~bootstrap/scss/bootstrap";
 
-.homeP{}
+@import 'common/extend';
+@import 'common/minxi';
+@import 'common/variables';
+@import 'common/global';
+
+@import 'layouts/main.scss';
+
+@import 'layouts/responsive.scss';
+
