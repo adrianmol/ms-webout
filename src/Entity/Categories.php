@@ -88,7 +88,7 @@ class Categories
 
     public function getCategoryName(): ?string
     {
-        $category =$this->getCategoryDescription()->get(0);
+        $category = $this->getCategoryDescription()->get(0);
 
         return $category->getName();
     }
