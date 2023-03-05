@@ -6,16 +6,20 @@ use App\Entity\User;
 use App\Entity\Manufacturer;
 use App\Entity\Categories;
 use App\Entity\Products;
-use App\Controller\Admin\UserCrudController;
+use App\Entity\Customers;
+use App\Entity\Orders;
+
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 use App\Repository\ManufacturerRepository;
 use App\Repository\CategoriesRepository;
+use App\Repository\ProductsRepository;
 
 class DashboardController extends AbstractDashboardController
 {
@@ -23,14 +27,17 @@ class DashboardController extends AbstractDashboardController
 
     private ManufacturerRepository $manufacturerRepository;
     private CategoriesRepository $categoriesRepository;
+    private ProductsRepository $productsRepository;
 
     public function __construct(
         ManufacturerRepository $manufacturerRepository,
-        CategoriesRepository $categoriesRepository
-        )
+        CategoriesRepository $categoriesRepository,
+        ProductsRepository $productsRepository
+    )
     {
         $this->manufacturerRepository = $manufacturerRepository;
         $this->categoriesRepository = $categoriesRepository;
+        $this->productsRepository = $productsRepository;
     }
 
     #[Route('/admin', name: 'admin')]
@@ -43,6 +50,8 @@ class DashboardController extends AbstractDashboardController
         $allCategories = count($this->categoriesRepository
             ->findAll());
 
+        $allProducts = count($this->productsRepository
+            ->findAll());    
 
         // return parent::index();
 
@@ -63,7 +72,9 @@ class DashboardController extends AbstractDashboardController
         //
         return $this->render('admin/index.html.twig',[
             'allManufacturers' => $allManufacturers,
-            'allCategories'    => $allCategories]);
+            'allCategories'    => $allCategories,
+            'allProducts'      => $allProducts,
+            ]);
     }
 
     public function configureDashboard(): Dashboard
@@ -83,6 +94,16 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Products', 'fa-solid fa-layer-group', Products::class);
         yield MenuItem::linkToCrud('Categories', 'fa-solid fa-layer-group', Categories::class);
         yield MenuItem::linkToCrud('Manufacturer', 'fas fa-industry', Manufacturer::class);
+
+        yield MenuItem::section('Customer');
+        yield MenuItem::linkToCrud('Customers', 'fas fa-user', Customers::class);
+
+        yield MenuItem::section('Sales');
+        yield MenuItem::linkToCrud('Orders', 'fa fa-shopping-cart', Orders::class);
+        
+        yield MenuItem::section('Cron Jobs');
+        yield MenuItem::linkToUrl('Cron Jobs', 'fa fa-calendar-check-o', 'admin?crudAction=index&crudControllerFqcn=App\Controller\Admin\CronJobCrudController');
+        yield MenuItem::linkToUrl('Report', 'fa fa-calendar-check-o', 'admin?crudAction=index&crudControllerFqcn=App\Controller\Admin\CronReportCrudController');
 
         yield MenuItem::section('');
         yield MenuItem::linkToCrud('Users', 'fas fa-user', User::class);

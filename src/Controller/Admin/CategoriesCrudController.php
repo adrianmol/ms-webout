@@ -30,10 +30,10 @@ class CategoriesCrudController extends AbstractCrudController
         ->createAsGlobalAction();
         
         return $actions
-            ->add(Crud::PAGE_INDEX, $getCategories)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ->remove(Crud::PAGE_INDEX, Action::EDIT);
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_DETAIL, Action::EDIT);
     }
 
     public function configureFilters(Filters $filters): Filters
