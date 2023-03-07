@@ -19,10 +19,10 @@ class ProductsCommand extends Command
 {
     protected function configure(): void
     {
-        $this
-            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
-        ;
+        // $this
+        //     ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
+        //     ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
+        // ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -36,6 +36,9 @@ class ProductsCommand extends Command
         $products_disabled = $client->request('GET' , 'http://localhost:8001/prisma/products/disabled');
         $array_output = json_decode($products_disabled->getContent(), true);
         
+        $products_variations = $client->request('GET' , 'http://localhost:8001/prisma/products/variations');
+        $array_output = json_decode($products_variations->getContent(), true);
+
         $products_custom_fields = $client->request('GET' , 'http://localhost:8001/prisma/products/custom-fields');
         $array_output = json_decode($products_custom_fields->getContent(), true);
 
