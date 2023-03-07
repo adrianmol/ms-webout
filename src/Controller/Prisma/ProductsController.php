@@ -178,8 +178,10 @@ class ProductsController extends AbstractController
         $entityManager = $this->doctrine->getManager();
         $products = $this->getDisabledProducts();
 
+        $return_data = array('product_disabled' => 0);
+
         if (!isset($products['StoreItemsNoEshop']) && empty($products['StoreItemsNoEshop'])) {
-            return false;
+            return $this->json($return_data);
         }
 
         foreach ($products['StoreItemsNoEshop'] as $prisma_product) {
@@ -187,6 +189,8 @@ class ProductsController extends AbstractController
             $model = (string)$prisma_product['storecode'];
 
             $exist_product = $this->doctrine->getRepository(\App\Entity\Products::class)->findOneBy(['model' => $model]);
+
+            $return_data['product_disabled'] += 1;
 
             if ($exist_product) {
                 $exist_product
@@ -197,9 +201,10 @@ class ProductsController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->render('prisma/product/index.html.twig', [
-            'controller_name' => 'ProductController',
-        ]);
+        return $this->json($return_data);
+        // return $this->render('prisma/product/index.html.twig', [
+        //     'controller_name' => 'ProductController',
+        // ]);
     }
 
     #[Route('/prisma/products/variations', name: 'app_prisma_product_variation')]
@@ -208,6 +213,8 @@ class ProductsController extends AbstractController
         $entityManager = $this->doctrine->getManager();
 
         $products = $this->getProducts();
+
+        $return_data = array('variation_inserted' => 0 , 'variation_updated' => 0);
 
         foreach ($products['StoreDetails'] as $prisma_product) {
 
@@ -249,6 +256,8 @@ class ProductsController extends AbstractController
                     ->setQuantity($quantity);
 
                 $entityManager->persist($product_variation);
+                $return_data['variation_inserted']  += 1;
+
             } else {
                 $exist_product_variation->setProductMasterId($product_master_id)
                     ->setVariationId($variation_id)
@@ -257,14 +266,19 @@ class ProductsController extends AbstractController
                     ->setBarcode($model)
                     ->setPrice($price_with_vat)
                     ->setQuantity($quantity);
+
+                $return_data['variation_updated']  += 1;
+
             }
+            
         }
 
         $entityManager->flush();
 
-        return $this->render('prisma/product/index.html.twig', [
-            'controller_name' => 'ProductController',
-        ]);
+        return $this->json($return_data);
+        // return $this->render('prisma/product/index.html.twig', [
+        //     'controller_name' => 'ProductController',
+        // ]);
     }
 
     #[Route('/prisma/products/custom-fields', name: 'app_prisma_custom_fields')]
@@ -274,7 +288,8 @@ class ProductsController extends AbstractController
         $custom_fields = $this->getCustomFields();
 
         if (!isset($custom_fields['CustomFields']) && empty($custom_fields['CustomFields'])) {
-            return false;
+
+            return $this->json(['total_custom_fields' => 0]);
         }
 
         foreach ($custom_fields['CustomFields'] as $field) {
@@ -296,9 +311,10 @@ class ProductsController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->render('prisma/product/index.html.twig', [
-            'controller_name' => 'ProductController',
-        ]);
+        return $this->json(['total_custom_fields' => count($custom_fields['CustomFields'])]);
+        // return $this->render('prisma/product/index.html.twig', [
+        //     'controller_name' => 'ProductController',
+        // ]);
 
     }
 
