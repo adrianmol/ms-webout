@@ -35,6 +35,10 @@ class ProductsController extends AbstractController
         $entityManager = $this->doctrine->getManager();
 
         $products = $this->getProducts();
+        $return_data = array('product_inserted' => 0 , 'product_updated' => 0);
+
+        if(empty($products['StoreDetails']))
+            return $this->json($return_data);
 
         foreach ($products['StoreDetails'] as $prisma_product) {
 
@@ -104,6 +108,8 @@ class ProductsController extends AbstractController
                     ->addProductDescription($productDescription);
 
                 if ($exist_category_id) $product->addCategory($exist_category_id);
+                
+                $return_data['product_inserted'] += 1;
 
                 $entityManager->persist($product);
                 $entityManager->persist($productDescription);
@@ -156,14 +162,14 @@ class ProductsController extends AbstractController
                     ->setDescription($description);
 
                 if ($exist_category_id) $exist_product->addCategory($exist_category_id);
+
+                $return_data['product_updated'] += 1;
             }
         }
 
         $entityManager->flush();
-
-        return $this->render('prisma/product/index.html.twig', [
-            'controller_name' => 'ProductController',
-        ]);
+        
+        return $this->json($return_data);
     }
 
     #[Route('/prisma/products/disabled', name: 'app_prisma_product_disabled')]
@@ -324,7 +330,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_DISABLED_PRODUCTS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => '10-1-2022',
+                'Date'       => date('d-m-Y', strtotime("-1 day")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
@@ -337,7 +343,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_PRODUCTS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => '10-1-2022',
+                'Date'       => date('d-m-Y', strtotime("-1 day")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
@@ -362,7 +368,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_CUSTOM_FIELDS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => '10-1-2022',
+                'Date'       => date('d-m-Y', strtotime("-1 day")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
