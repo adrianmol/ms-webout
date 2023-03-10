@@ -67,7 +67,7 @@ class OrdersController extends AbstractController
                       ->setCustomerGroupId($oc_order['customer_group_id'])
                       ->setFirstName($oc_order['firstname'])
                       ->setLastName($oc_order['lastname'])
-                      ->setEmail($oc_order['email'])
+                      ->setEmail(strtolower(trim($oc_order['email'])))
                       ->setTelephone($oc_order['telephone'])
                       ->setPaymentFirstname($oc_order['payment_firstname'])
                       ->setPaymentLastname($oc_order['payment_lastname'])
@@ -95,7 +95,20 @@ class OrdersController extends AbstractController
                       ->setTotal($oc_order['total'])
                       ->setOrderStatusId($oc_order['order_status_id'])
                       ->setDateAdded($date_added)
-                      ->setDateModified($date_modified);
+                      ->setDateModified($date_modified)
+                      ->setIsInvoiceOrder(false)
+                      ;
+
+                    if($oc_order['customer_group_id'] == 2){
+                        $invoice_details = json_decode($oc_order['payment_custom_field'], true);
+
+                        $order
+                        ->setIsInvoiceOrder(true)
+                        ->setVatNumber($invoice_details[1])
+                        ->setDoy($invoice_details[2])
+                        ->setProfession($invoice_details[3])
+                        ;
+                    }
 
                 if(isset($oc_order['products'])) foreach($oc_order['products'] as $product){
 
