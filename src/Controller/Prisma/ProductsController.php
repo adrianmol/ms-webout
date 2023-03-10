@@ -216,6 +216,10 @@ class ProductsController extends AbstractController
 
         $return_data = array('variation_inserted' => 0 , 'variation_updated' => 0);
 
+        if(empty($products['StoreDetails'])){
+            return $this->json($return_data);
+        }
+
         foreach ($products['StoreDetails'] as $prisma_product) {
 
             if (
@@ -281,7 +285,7 @@ class ProductsController extends AbstractController
         // ]);
     }
 
-    #[Route('/prisma/products/custom-fields', name: 'app_prisma_custom_fields')]
+    #[Route('/prisma/products/customfields', name: 'app_prisma_custom_fields')]
     public function insertCustomFields()
     {
         $entityManager = $this->doctrine->getManager();
