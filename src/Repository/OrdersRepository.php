@@ -54,13 +54,13 @@ class OrdersRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Orders
-//    {
-//        return $this->createQueryBuilder('o')
-//            ->andWhere('o.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+   public function findAllOrdersThatDoentSentToErp(): array
+   {
+       return $this->createQueryBuilder('o')
+           ->andWhere('o.erp_order_id IS NULL')
+           ->setMaxResults(5)
+           ->getQuery()
+           ->getResult()
+       ;
+   }
 }
