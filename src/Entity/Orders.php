@@ -130,6 +130,18 @@ class Orders
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date_modified = null;
 
+    #[ORM\Column]
+    private ?bool $is_invoice_order = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $vat_number = null;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $doy = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $profession = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -596,5 +608,53 @@ class Orders
         $name = $this->getFirstname() .' ' . $this->getLastName();
 
         return $name;
+    }
+
+    public function isIsInvoiceOrder(): ?bool
+    {
+        return $this->is_invoice_order;
+    }
+
+    public function setIsInvoiceOrder(bool $is_invoice_order): self
+    {
+        $this->is_invoice_order = $is_invoice_order;
+
+        return $this;
+    }
+
+    public function getVatNumber(): ?int
+    {
+        return $this->vat_number;
+    }
+
+    public function setVatNumber(?int $vat_number): self
+    {
+        $this->vat_number = $vat_number;
+
+        return $this;
+    }
+
+    public function getProfession(): ?string
+    {
+        return $this->profession;
+    }
+
+    public function setProfession(?string $profession): self
+    {
+        $this->profession = $profession;
+
+        return $this;
+    }
+
+    public function getDoy(): ?string
+    {
+        return $this->doy;
+    }
+
+    public function setDoy(?string $doy): self
+    {
+        $this->doy = $doy;
+
+        return $this;
     }
 }
