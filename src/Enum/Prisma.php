@@ -16,6 +16,8 @@ class Prisma {
     public static string $GET_DISABLED_PRODUCTS = 'GetItemsWithNoEshop';
     public static string $GET_CUSTOM_FIELDS = 'GetCustomFields';
 
+    public static string $INSERT_CUSTOMER = 'InsertCustomer';
+
     public function index()
     {
 
