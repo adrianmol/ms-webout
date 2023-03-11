@@ -20,11 +20,10 @@ class CronReportCrudController extends AbstractCrudController
         return CronReport::class;
     }
 
-
     public function configureFields(string $pageName): iterable
     {
         return [
-            //TextareaField::new('getJobName'),
+            IdField::new('id'),
             DateTimeField::new('run_at'),
             NumberField::new('run_time'),
             NumberField::new('exit_code'),
