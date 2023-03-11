@@ -50,7 +50,7 @@ class ProductsController extends AbstractController
             }
 
             $product_id  = $prisma_product['ItemId'] ?? 0;
-            $category_id = $prisma_product['ItemGroupId'] ?? NULL;
+            $category_id = $prisma_product['ItemGroupTwoId'] ?? NULL;
 
             //Init objects <product/productDescription/productCategory>
             //Search for product if exist
@@ -350,7 +350,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_DISABLED_PRODUCTS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => date('m-d-Y', strtotime("-1 day")),
+                'Date'       => date('m-d-Y H:m', strtotime("-4 hours")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
@@ -363,7 +363,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_PRODUCTS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => date('m-d-Y', strtotime("-1 day")),
+                'Date'       => date('m-d-Y H:m', strtotime("-4 hours")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
@@ -388,7 +388,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_CUSTOM_FIELDS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => date('m-d-Y', strtotime("-1 day")),
+                'Date'       => date('m-d-Y H:m', strtotime("-4 hours")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
