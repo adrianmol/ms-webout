@@ -350,7 +350,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_DISABLED_PRODUCTS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => date('d-m-Y', strtotime("-1 day")),
+                'Date'       => date('m-d-Y', strtotime("-1 day")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
@@ -363,7 +363,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_PRODUCTS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => date('d-m-Y', strtotime("-1 day")),
+                'Date'       => date('m-d-Y', strtotime("-1 day")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
@@ -388,7 +388,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_CUSTOM_FIELDS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => date('d-m-Y', strtotime("-1 day")),
+                'Date'       => date('m-d-Y', strtotime("-1 day")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
