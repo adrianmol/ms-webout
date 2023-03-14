@@ -69,7 +69,10 @@ class ProductsController extends AbstractController
             $price_with_vat  = round($prisma_product['ItemRetailVat'], 4) ?? 0.000;
             $vat_perc        = round($prisma_product['ItemFPA'], 2) ?? 0.00;
             $product_discount = round($prisma_product['ItemDiscount'], 4) ?? 0;
-            $weight          = (float)$prisma_product['ItemWeight'] ?? 0.000;
+            $weight           = (float)$prisma_product['ItemWeight'] ?? 0.000;
+
+            $date_added    = \DateTime::createFromFormat('d/m/Y  H:i:s A', $prisma_product['ItemDateCreated'])->format('Y-m-d H:m:s');
+            $date_modified = \DateTime::createFromFormat('d/m/Y  H:i:s A', $prisma_product['ItemDateModified'])->format('Y-m-d H:m:s');
 
             $name        = $prisma_product['ItemDescr'] ?? '';
             $description = !empty($prisma_product['ItemNotes']) ? $prisma_product['ItemNotes'] : '';
@@ -103,8 +106,8 @@ class ProductsController extends AbstractController
                     ->setVatPerc($vat_perc)
                     ->setWeight($weight)
                     ->setStatus(1)
-                    ->setDateAdded(new \DateTime())
-                    ->setDateModified(new \DateTime())
+                    ->setDateAdded(new \DateTime($date_added))
+                    ->setDateModified(new \DateTime($date_modified))
                     ->addProductDescription($productDescription);
 
                 if ($exist_category_id) $product->addCategory($exist_category_id);
@@ -310,6 +313,11 @@ class ProductsController extends AbstractController
                 $exist_product
                     ->setSku($sku)
                     ->setMpn($mpn);
+
+                if(isset($field['CustomField_5']) && $field['CustomField_5'] > 0)
+                {
+                    $exist_product->setSupplierQuantity($field['CustomField_5']);
+                }    
             }
         }
 
