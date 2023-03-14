@@ -67,6 +67,9 @@ class Products
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductDiscount::class)]
     private Collection $productDiscounts;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $supplier_quantity = null;
+
     public function __construct()
     {
         $this->productDescriptions = new ArrayCollection();
@@ -327,6 +330,18 @@ class Products
                 $productDiscount->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSupplierQuantity(): ?int
+    {
+        return $this->supplier_quantity;
+    }
+
+    public function setSupplierQuantity(?int $supplier_quantity): self
+    {
+        $this->supplier_quantity = $supplier_quantity;
 
         return $this;
     }
