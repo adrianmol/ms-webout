@@ -48,6 +48,14 @@ class ProductsRepository extends ServiceEntityRepository
             ->leftJoin('p.category', 'pc')
             ->addSelect('p', 'pd', 'pc');
 
+        if(isset($param['date_modified']))
+        {
+            $qb
+               ->andWhere('p.date_modified > :date')
+               ->setParameter('date', $param['date_modified'])
+               ;
+        }
+
         return $query = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY) ?? [];
     }
 
