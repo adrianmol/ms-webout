@@ -105,9 +105,10 @@ class ProductsController extends AbstractController
     private function prepareProductsData(): array
     {
         $oc_products = array();
+        $get_last_four_hours_products = date('Y-m-d H:m:s', strtotime("-4 hours"));
 
         $data = $this->productsRepository
-            ->getAllProductsForOC();
+            ->getAllProductsForOC(['date_modified' => $get_last_four_hours_products]);
 
         foreach ($data as $product) {
 
@@ -152,6 +153,7 @@ class ProductsController extends AbstractController
                 'discount_price' => '',
                 'price'         => $product['price_with_vat'],
                 'quantity'      => !empty($quantity) ? $quantity : $product['quantity'],
+                'supplier_quantity' => $product['supplier_quantity'] ?? '',
                 'manufacturer_id'   => $product['manufacturer_id'],
                 'weight'        => $product['weight'],
                 'status'        => $product['status'],
