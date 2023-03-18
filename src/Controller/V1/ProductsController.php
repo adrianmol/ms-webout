@@ -157,6 +157,8 @@ class ProductsController extends AbstractController
                 'manufacturer_id'   => $product['manufacturer_id'],
                 'weight'        => $product['weight'],
                 'status'        => $product['status'],
+                'date_added'    => $product['date_added']->format('Y-m-d H:i:s'),
+                'date_modified' => $product['date_modified']->format('Y-m-d H:i:s'),
                 'product_category'    => $categories,
                 'product_description' => $product_description,
                 'product_store' => 0
