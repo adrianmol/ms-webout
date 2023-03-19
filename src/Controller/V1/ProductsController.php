@@ -71,7 +71,6 @@ class ProductsController extends AbstractController
             ],
             'body'    => json_encode($data)
         ]);
-        dd($response->getContent());
 
         return json_decode(($response->getContent()), true);
     }
