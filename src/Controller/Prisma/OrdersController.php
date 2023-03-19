@@ -57,6 +57,18 @@ class OrdersController extends AbstractController
         ]);
     }
 
+    #[Route('/prisma/orders/get-status', name: 'app_prisma_orders')]
+    public function getOrdersStatus(): Response
+    {
+        $entityManager = $this->doctrine->getManager();
+        $orders = new OrdersRepository($this->doctrine);
+
+        $_orders = $orders->findAllOrdersThatHaveToChangeStatus();
+ 
+        $orders_status_prisma = $this->getOrdersStatusPrisma($_orders);
+        dd($orders_status_prisma);
+        return $this->json([]);
+    }
 
     private function prepareCustomer($order) 
     {
@@ -189,6 +201,33 @@ class OrdersController extends AbstractController
             ]
         ]);
     
+        return json_decode(json_encode((array)simplexml_load_string($response->getContent())), true);
+    }
+
+    private function getOrdersStatusPrisma($orders)
+    {
+        
+        if(empty($orders))
+        {
+            return [];
+        }
+
+        foreach($orders as $order)
+        {
+            if(!empty($order['erp_order_id'])){
+                $data['Orders'][] = ['OrderNo' => $order['erp_order_id']];
+            }
+            
+        }
+
+        $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_ORDER_STATUS, [
+            'body' => [
+                'SiteKey'    => Prisma::$SITE_KEY,
+                'Date'       => '01-01-2022',
+                'JsonStrWeb' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            ]
+        ]);
+
         return json_decode(json_encode((array)simplexml_load_string($response->getContent())), true);
     }
 }
