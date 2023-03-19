@@ -19,6 +19,7 @@ class Prisma {
     public static string $INSERT_CUSTOMER = 'InsertCustomer';
 
     public static string $INSERT_ORDER = 'InsertOrder';
+    public static string $GET_ORDER_STATUS = 'GetOrderStatus';
 
     public function index()
     {
