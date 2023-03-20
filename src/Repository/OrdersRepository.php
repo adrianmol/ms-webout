@@ -63,4 +63,16 @@ class OrdersRepository extends ServiceEntityRepository
            ->getResult()
        ;
    }
+
+   public function findAllOrdersThatHaveToChangeStatus(): array
+   {
+       return $this->createQueryBuilder('o')
+           ->select('o.id', 'o.eshop_order_id', 'o.erp_order_id')
+           ->andWhere('o.order_status_id IN (1)')
+           ->andWhere('o.erp_order_id IS NOT NULL')
+           ->getQuery()
+           ->getResult()
+       ;
+   }
+
 }
