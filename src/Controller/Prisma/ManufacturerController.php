@@ -28,7 +28,12 @@ class ManufacturerController extends AbstractController
         $entityManager = $doctrine->getManager();
         $prisma_manufacturers = $this->getManufacturer();
 
-        $data_response = array();
+        $data_response = ['inserted' => 0 , 'updated' => 0];
+
+        if(empty($prisma_manufacturers['ManufacturerDetails']))
+        {
+            return $this->json($data_response);
+        }
         
         foreach($prisma_manufacturers['ManufacturerDetails'] as $prisma_manufacturer){
 
@@ -48,7 +53,7 @@ class ManufacturerController extends AbstractController
                 ->setDateModified(new \DateTime())
                 ->setImage('');
 
-                $data_response['inserted'][] = $Manufacturer->getManufacturerId();
+                $data_response['inserted'] += 1;
 
                 $entityManager->persist($Manufacturer);
 
@@ -58,19 +63,19 @@ class ManufacturerController extends AbstractController
                 ->setName($name)
                 ->setDateModified(new \DateTime());
                 
-                $data_response['updated'][] = [
-                    'manufacturer_id'   => $exist_manufacturer->getManufacturerId(),
-                    'name'              => $exist_manufacturer->getName()
-                ];
+                $data_response['updated'] += 1;
             }
         }
 
         $entityManager->flush();
 
-        return $this->redirectToRoute(
-        'admin',
-        ['crudAction'=>'index',
-        'crudControllerFqcn'=>'App\Controller\Admin\ManufacturerCrudController']);
+
+        return $this->json($data_response);
+
+        // return $this->redirectToRoute(
+        // 'admin',
+        // ['crudAction'=>'index',
+        // 'crudControllerFqcn'=>'App\Controller\Admin\ManufacturerCrudController']);
         
         // return $this->render('prisma/manufacturer/index.html.twig', [
         //     'data' => $data_response,

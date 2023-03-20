@@ -31,6 +31,13 @@ class CategoriesController extends AbstractController
         $entityManager = $doctrine->getManager();
         $prismaCategories = $this->getCategories();
 
+        $data_response = ['inserted' => 0 , 'updated' => 0];
+
+        if(empty($prismaCategories['GroupsListItems']))
+        {
+            return $this->json($data_response);
+        }
+
         foreach($prismaCategories['GroupsListItems'] as $prismaCategory){
 
             $id = $prismaCategory['Id'];
@@ -64,6 +71,8 @@ class CategoriesController extends AbstractController
 
                     $entityManager->persist($category);
                     $entityManager->persist($categoryDescription);
+
+                    $data_response['inserted'] += 1;
             }else{
 
                 $exist_category->setParentId($parent_id)
@@ -76,14 +85,17 @@ class CategoriesController extends AbstractController
                 ->get(0)
                 ->setName($title)
                 ->setLanguageId(2);
+
+                $data_response['updated'] += 1;
             }
         }
 
         $entityManager->flush();
 
-        return $this->render('prisma/categories/index.html.twig', [
-            'controller_name' => 'CategoriesController',
-        ]);
+        return $this->json($data_response);
+        // return $this->render('prisma/categories/index.html.twig', [
+        //     'controller_name' => 'CategoriesController',
+        // ]);
     }
 
     public function getCategories(){
