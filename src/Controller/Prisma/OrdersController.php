@@ -58,7 +58,7 @@ class OrdersController extends AbstractController
                 $data_eshop['orders'][] = [
                     'prisma_id' => $prisma_order[0],
                     'order_id'  => $order->getEshopOrderId(),
-                    'status'    => 1
+                    'status'    => 0
                 ];
             }
         }
