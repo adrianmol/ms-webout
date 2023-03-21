@@ -32,10 +32,8 @@ class OptionsController extends AbstractController
         $options = $this->optionRepository
                          ->getAllOptionForOC();
              
-        dd($this->sendOptions($options));
-        return $this->render('v1/options/index.html.twig', [
-            'controller_name' => 'OptionsController',
-        ]);
+        return $this->json($this->sendOptions($options));
+
     }
 
     private function sendOptions($options)
