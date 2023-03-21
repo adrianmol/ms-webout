@@ -58,6 +58,7 @@ class OrdersRepository extends ServiceEntityRepository
    {
        return $this->createQueryBuilder('o')
            ->andWhere('o.erp_order_id IS NULL')
+           ->orWhere('o.erp_order_id < 0')
            ->setMaxResults(5)
            ->getQuery()
            ->getResult()

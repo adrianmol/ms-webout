@@ -142,6 +142,9 @@ class Orders
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $profession = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $erp_status_id = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -654,6 +657,18 @@ class Orders
     public function setDoy(?string $doy): self
     {
         $this->doy = $doy;
+
+        return $this;
+    }
+
+    public function getErpStatusId(): ?int
+    {
+        return $this->erp_status_id;
+    }
+
+    public function setErpStatusId(?int $erp_status_id): self
+    {
+        $this->erp_status_id = $erp_status_id;
 
         return $this;
     }
