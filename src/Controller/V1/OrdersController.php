@@ -41,9 +41,7 @@ class OrdersController extends AbstractController
         $orders = $this->getOrders();
 
         if(empty($orders['data'])){
-            return $this->render('v1/orders/index.html.twig', [
-                'controller_name' => 'OrdersController',
-            ]);
+            return $this->json(['message' => 'done']);
         }
 
         foreach($orders['data'] as $oc_order){
@@ -145,7 +143,8 @@ class OrdersController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->redirectToRoute('admin');
+        return $this->json(['message' => 'done']);
+        //return $this->redirectToRoute('admin');
     }
 
     private function getOrders()
