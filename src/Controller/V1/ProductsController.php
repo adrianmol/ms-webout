@@ -53,7 +53,7 @@ class ProductsController extends AbstractController
         return $this->json($response);
     }
 
-    #[Route('/v1/products/discount', name: 'app_v1_products_options')]
+    #[Route('/v1/products/discount', name: 'app_v1_products_discount')]
     public function sendProductDiscount(): Response
     {
         $product_discounts = $this->prepareProductsDiscount();
