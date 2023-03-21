@@ -17,6 +17,7 @@ class Opencart {
     public static string $GET_OPTIONS  = 'prismaOptions';
 
     public static string $GET_ORDERS = 'prismaOrders';
+    public static string $UPDATE_STATUS_ORDERS = 'prismaUpdateOrders';
 
 
     public function index()
