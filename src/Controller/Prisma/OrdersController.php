@@ -78,40 +78,80 @@ class OrdersController extends AbstractController
     {
         $entityManager = $this->doctrine->getManager();
         $orders = new OrdersRepository($this->doctrine);
+        $data_eshop['orders'] = array ();
 
         $_orders = $orders->findAllOrdersThatHaveToChangeStatus();
 
+        if(empty($_orders)){
+            return $this->json(['message' => 'No orders were found']);
+        }
+
         $orders_status_prisma = $this->getOrdersStatusPrisma($_orders);
-        dd($orders_status_prisma);
+
+        if(empty($orders_status_prisma)){
+            return $this->json(['message' => 'No orders were found in Prisma']);
+        }
+
+        foreach($orders_status_prisma->OrderStatus as $prisma_order){
+            
+            $prisma_order = json_decode(json_encode($prisma_order), true);
+            
+            if(empty($prisma_order['OrderNo']))
+            {
+                continue;
+            }
+
+            $repo_order = $orders->findByErpOrdersId($prisma_order['OrderNo']);
+
+            if(!empty($repo_order) && $repo_order->getErpStatusID() != $prisma_order['Status'])
+            {
+
+                $repo_order->setErpStatusId($prisma_order['Status']);
+
+                $data_eshop['orders'][] = [
+                    'prisma_id' => $repo_order->getErpOrderId(),
+                    'order_id'  => $repo_order->getEshopOrderId(),
+                    'status'    => $prisma_order['Status']
+                ];
+
+                $entityManager->flush();
+            }
+        }
+
+        if (!empty($data_eshop['orders'])) {
+            $this->updateOrderEshop($data_eshop);
+        }
+
+        //dd($_orders,$orders_status_prisma,$data_eshop);
         return $this->json([]);
     }
 
     private function prepareCustomer($order)
     {
 
-        $customer_name = $order->isIsInvoiceOrder() ? $order->getPaymentCompany() : $order->getFirstName() . ' ' . $order->getLastName();
+        $customer_name = $order->isIsInvoiceOrder() ? $order->getPaymentCompany() : $order->getLastName() . ' ' . $order->getFirstName();
 
         return [
-            'CustUsername'     => $order->getEmail(),
-            'CustName'            => $customer_name,
-            'CustAfm'            => $order->isIsInvoiceOrder() ? $order->getVatNumber() : '',
-            'CustFpa'            => '01',
-            'ShippingCity'     => $order->getPaymentCity(),
-            'CustCity'         => $order->getPaymentCity(),
+            'CustUsername'    => $order->getEmail(),
+            'CustName'        => $customer_name,
+            'CustAfm'         => $order->isIsInvoiceOrder() ? $order->getVatNumber() : '',
+            'CustFpa'         => '01',
+            'ShippingCity'    => $order->getPaymentCity(),
+            'CustCity'        => $order->getPaymentCity(),
             'CustAddress'     => $order->getPaymentAddress(),
             'ShippingAddress' => $order->getPaymentAddress(),
             'CustZip'         => $order->getPaymentPostCode(),
             'ShippingZip'     => $order->getPaymentPostCode(),
-            'CustEmail'     => $order->getEmail(),
-            'CustMobile'     => $order->getTelephone(),
+            'CustEmail'       => $order->getEmail(),
+            'CustMobile'      => $order->getTelephone(),
             'CustTel'         => '',
             'CustDOY'         => $order->isIsInvoiceOrder() ? $order->getDoy() : '',
-            'CustPricelist' => '02',
+            'CustPricelist'   => '03',
             'CustFax'         => '',
-            'CustBusiness'     => $order->isIsInvoiceOrder() ? $order->getProfession() : '',
-            'CustKepyo'     => $order->isIsInvoiceOrder() ? '01' : '05',
+            'CustBusiness'    => $order->isIsInvoiceOrder() ? $order->getProfession() : '2',
+            'CustKepyo'       => $order->isIsInvoiceOrder() ? '01' : '05',
             'CustCountryCode' => 'EL',
-            'CustPaymentMethodCode' => '05'
+            'CustPaymentMethodCode' => '09'
         ];
     }
 
@@ -278,7 +318,7 @@ class OrdersController extends AbstractController
 
         foreach ($orders as $order) {
             if (!empty($order['erp_order_id'])) {
-                $data['Orders'][] = ['OrderNo' => $order['erp_order_id']];
+                $data['Orders'][] = ['OrderNo' => $order['erp_order_id'], 'Seira' => 'A'];
             }
         }
 
@@ -290,6 +330,6 @@ class OrdersController extends AbstractController
             ]
         ]);
 
-        return json_decode(json_encode((array)simplexml_load_string($response->getContent())), true);
+        return simplexml_load_string($response->getContent());
     }
 }
