@@ -170,7 +170,7 @@ class OrdersController extends AbstractController
             'StorageCode'   => '000',
             'SeiraPar'      => 'A',
             'TroposPliromis' => $this->getPaymentMethodsForPrisma($order->getPaymentCode()),
-            'TroposApostolhs' => 'ΑΠΟΣΤΟΛΗ ΜΕ COURIER',
+            'TroposApostolhs' => $this->getShippingMethodsForPrisma($order->getShippingCode()),
             'SkoposDiak'    => 'ΠΩΛΗΣΗ',
             'ToposFortoshs' => 'ΕΔΡΑΜΑΣ',
             'Comments'      => $order->getComment(),
@@ -258,7 +258,7 @@ class OrdersController extends AbstractController
     {
 
         $payments_prisma = [
-            '01'  => '',
+            '01'  => 'xshippingpro.xshippingpro4',
             '03'  => 'xpayment2',
             '09'  => 'pc_eurobank',
             '08'  => 'xpayment1'
@@ -269,6 +269,23 @@ class OrdersController extends AbstractController
         }
 
         return array_keys($payments_prisma, $find_payment_method)[0] ?? '';
+    }
+
+    private function getShippingMethodsForPrisma($find_shipping_method)
+    {
+
+        $shippings_prisma = [
+            'ΑΠΟΣΤΟΛΗ ΜΕ COURIER'  => 'xshippingpro.xshippingpro1',
+            'ΑΠΟΣΤΟΛΗ ΜΕ COURIER'  => 'xshippingpro.xshippingpro3',
+            'ΑΠΟΣΤΟΛΗ ΜΕ COURIER'  => 'xshippingpro.xshippingpro2',
+            'ΠΑΡΑΛΑΒΗ ΑΠΟ ΤΟ ΚΑΤΑΣΤΗΜΑ'  => 'xshippingpro.xshippingpro4',
+        ];
+
+        if (!isset($find_shipping_method) && !isset($shippings_prisma[$find_shipping_method])) {
+            return 0;
+        }
+
+        return array_keys($shippings_prisma, $find_shipping_method)[0] ?? '';
     }
 
     private function insertCustomer($customer)
