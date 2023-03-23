@@ -67,13 +67,32 @@ class OrdersRepository extends ServiceEntityRepository
 
    public function findAllOrdersThatHaveToChangeStatus(): array
    {
+       $erpStatus = [2,7];
+
        return $this->createQueryBuilder('o')
            ->select('o.id', 'o.eshop_order_id', 'o.erp_order_id')
-           ->andWhere('o.order_status_id IN (1)')
+           ->andWhere('o.erp_status_id NOT IN (:erpStatus)')
            ->andWhere('o.erp_order_id IS NOT NULL')
+           ->setParameter('erpStatus', $erpStatus, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
            ->getQuery()
            ->getResult()
        ;
+   }
+
+   public function findByErpOrdersId(int $erp_order_id)
+   {
+        if(empty($erp_order_id))
+        {
+            return false;
+        }
+
+        return $this->createQueryBuilder('o')
+        ->andWhere('o.erp_order_id = (:erpOrderId)')
+        ->setParameter('erpOrderId', $erp_order_id)
+        ->getQuery()
+        ->getSingleResult()
+    ;
+
    }
 
 }
