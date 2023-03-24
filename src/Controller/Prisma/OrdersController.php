@@ -158,7 +158,7 @@ class OrdersController extends AbstractController
     private function prepareOrder(&$order, &$products)
     {
 
-        $customer_name = $order->isIsInvoiceOrder() ? $order->getPaymentCompany() : $order->getFirstName() . ' ' . $order->getLastName();
+        $customer_name = $order->isIsInvoiceOrder() ? $order->getPaymentCompany() : $order->getLastName() . ' ' .$order->getFirstName() ;
         $prisma_totals = $this->prepareTotalsAsProduct($order->totals);
         $prisma_products = $this->prepareProducts($products);
 
