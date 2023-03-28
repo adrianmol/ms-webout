@@ -143,7 +143,7 @@ class ProductsController extends AbstractController
                     'price'      => $price,
                     'price_with_vat'=> $price_with_vat,
                     'vat_perc'   => $vat_perc,
-                    'exist_category_id' => $exist_category_id->getCategoryId(),
+                    'exist_category_id' => $exist_category_id ? $exist_category_id->getCategoryId() : '',
                 ];
 
             } else {
@@ -209,7 +209,7 @@ class ProductsController extends AbstractController
                     'price'      => $price,
                     'price_with_vat'=> $price_with_vat,
                     'vat_perc'   => $vat_perc,
-                    'exist_category_id' => $exist_category_id->getCategoryId() ?? 0,
+                    'exist_category_id' => $exist_category_id ? $exist_category_id->getCategoryId() : '',
                 ];
                 
             }
@@ -375,6 +375,36 @@ class ProductsController extends AbstractController
 
     }
 
+    #[Route('/prisma/products/images', name: 'app_prisma_products_images')]
+    public function getImageFromPrisma()
+    {
+
+        $repo_products = new \App\Repository\ProductsRepository($this->doctrine);
+        $products = $repo_products->getProductsForImages(['date_modified' => date('Y-m-d H:m', strtotime("-24 hours"))]);
+
+        $total_send_products = 20;
+        $loops = 1;
+        $prisma_model['items'] = Array(); 
+        $return_data = Array();
+
+        foreach($products as $product)
+        {
+            if($loops > $total_send_products)
+            {
+                $this->uploadImageToFtp($prisma_model);
+                $return_data['upload'][] = $prisma_model;
+
+                $loops = 1;
+                $prisma_model['items'] = Array(); 
+            }
+
+            $prisma_model['items'][]['storecode'] = $product['model'];
+            
+            $loops++;
+        }
+        return $this->json($return_data);
+    }
+
     private function createOptionValueAndDescription($name)
     {
         $option = new \App\Entity\OptionValue;
@@ -405,6 +435,19 @@ class ProductsController extends AbstractController
                 'SiteKey'    => Prisma::$SITE_KEY,
                 'Date'       => date('m-d-Y H:m', strtotime("-4 hours")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
+            ]
+        ]);
+
+        return json_decode(json_encode((array)simplexml_load_string($response->getContent())), true);
+    }
+
+    private function uploadImageToFtp($products)
+    {
+
+        $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$UPLOAD_IMAGE_TO_FTP, [
+            'body' => [
+                'SiteKey'    => Prisma::$SITE_KEY,
+                'JsonStrWeb' => json_encode($products, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
             ]
         ]);
 

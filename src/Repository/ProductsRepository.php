@@ -59,6 +59,23 @@ class ProductsRepository extends ServiceEntityRepository
         return $query = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY) ?? [];
     }
 
+    public function getProductsForImages($param = [])
+    {
+        $qb = $this->createQueryBuilder('p')
+        ->select('p.model', 'p.date_modified')
+        ;
+
+    if(isset($param['date_modified']))
+    {
+        $qb
+           ->andWhere('p.date_modified > :date')
+           ->setParameter('date', $param['date_modified'])
+           ;
+    }
+
+    return $query = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY) ?? [];
+    }
+
 
     // public function getTotalQuantity($product_id): int
     // {
