@@ -9,6 +9,7 @@ use App\Entity\Products;
 use App\Entity\Customers;
 use App\Entity\Orders;
 
+use Symfony\Component\HttpClient\CurlHttpClient as HttpClient;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -16,7 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use App\Repository\ManufacturerRepository;
 use App\Repository\CategoriesRepository;
 use App\Repository\ProductsRepository;
@@ -77,10 +78,28 @@ class DashboardController extends AbstractDashboardController
             ]);
     }
 
+    #[Route('/admin/datatable', name: 'admin_data_table')]
+    public function dataTable(): Response
+    {
+
+        return $this->render('admin/data_tables/index.html.twig');
+    }
+
+
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
             ->setTitle('MS Webout');
+    }
+
+    public function configureAssets(): Assets
+    {
+        
+        return Assets::new()
+        ->addCssFile('https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css')
+        ->addJsFile('https://code.jquery.com/jquery-3.6.4.min.js')
+        ->addJsFile('https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js')
+        ;
     }
 
     public function configureMenuItems(): iterable
@@ -91,7 +110,11 @@ class DashboardController extends AbstractDashboardController
         //     MenuItem::linkToCrud('Manufactuer', 'fas fa-industry', Manufacturer::class)
         // ]);
         yield MenuItem::section('Catalog');
-        yield MenuItem::linkToCrud('Products', 'fa-solid fa-layer-group', Products::class);
+        yield MenuItem::subMenu('Products', 'fa-solid fa-layer-group')->setSubItems([
+            MenuItem::linkToCrud('Products', 'fa-solid fa-layer-group', Products::class),
+             MenuItem::linkToUrl('Products Data Live', 'fa-solid fa-layer-group', 'admin/datatable')
+        ]);
+
         yield MenuItem::linkToCrud('Categories', 'fa-solid fa-layer-group', Categories::class);
         yield MenuItem::linkToCrud('Manufacturer', 'fas fa-industry', Manufacturer::class);
 

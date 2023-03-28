@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Common\Collections\Criteria;
-
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductsController extends AbstractController
 {
@@ -29,12 +29,27 @@ class ProductsController extends AbstractController
     }
 
     #[Route('/prisma/products', name: 'app_prisma_product')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $request_date = '';
+        $type = $request->get('type') ?? '';
+        if(isset($type)){
+            switch ($request->get('type')) {
+                case 'lastDay':
+                    $request_date = date('m-d-Y H:m', strtotime("-1 day"));
+                    break;
+                case 'lastWeek':
+                    $request_date = date('m-d-Y H:m', strtotime("-1 week"));
+                    break;
+                case 'lastMonth':
+                    $request_date = date('m-d-Y H:m', strtotime("-1 month"));
+                    break;
+            }
+        }
 
         $entityManager = $this->doctrine->getManager();
 
-        $products = $this->getProducts();
+        $products = $this->getProducts($request_date);
         $return_data = array('product_inserted' => 0 , 'product_updated' => 0);
 
         if(empty($products['StoreDetails']))
@@ -112,10 +127,25 @@ class ProductsController extends AbstractController
 
                 if ($exist_category_id) $product->addCategory($exist_category_id);
                 
-                $return_data['product_inserted'] += 1;
-
                 $entityManager->persist($product);
                 $entityManager->persist($productDescription);
+                
+                $return_data['product_inserted'] += 1;
+                $return_data['data'][] =[
+                    'product_id' => $product_id,
+                    'model'      => $model,
+                    'name'       => $name,
+                    'description'=> $description,
+                    'sku'        => $sku,
+                    'quantity'   => $quantity,
+                    'manufacturer_id'=> $manufacturer_id,
+                    'wholesale_price'=> $wholesale_price,
+                    'price'      => $price,
+                    'price_with_vat'=> $price_with_vat,
+                    'vat_perc'   => $vat_perc,
+                    'exist_category_id' => $exist_category_id->getCategoryId(),
+                ];
+
             } else {
 
                 if (!empty($product_discount)) {
@@ -167,11 +197,26 @@ class ProductsController extends AbstractController
                 if ($exist_category_id) $exist_product->addCategory($exist_category_id);
 
                 $return_data['product_updated'] += 1;
+                $return_data['data'][] =[
+                    'product_id' => $product_id,
+                    'model'      => $model,
+                    'name'       => $name,
+                    'description'=> $description,
+                    'sku'        => $sku,
+                    'quantity'   => $quantity,
+                    'manufacturer_id'=> $manufacturer_id,
+                    'wholesale_price'=> $wholesale_price,
+                    'price'      => $price,
+                    'price_with_vat'=> $price_with_vat,
+                    'vat_perc'   => $vat_perc,
+                    'exist_category_id' => $exist_category_id->getCategoryId() ?? 0,
+                ];
+                
             }
         }
 
         $entityManager->flush();
-        
+        $return_data['recordsTotal'] = $return_data['recordsFiltered'] = count($return_data['data']);
         return $this->json($return_data);
     }
 
@@ -366,12 +411,13 @@ class ProductsController extends AbstractController
         return json_decode(json_encode((array)simplexml_load_string($response->getContent())), true);
     }
 
-    private function getProducts()
+    private function getProducts($date = '')
     {
+        $date = $date ? $date :date('m-d-Y H:m', strtotime("-4 hours"));
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_PRODUCTS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => date('m-d-Y H:m', strtotime("-4 hours")),
+                'Date'       => $date,
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);

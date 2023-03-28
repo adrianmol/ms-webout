@@ -1,0 +1,100 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+
+{% block page_title %}
+	Products Data Table
+{% endblock %}
+
+{% block main %}
+<div class="dropdown dropdown-actions">
+  <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Get Products Data
+  </a>
+
+  <div class="dropdown-menu" >
+    <a class="dropdown-item getProductsData" data-type="lastDay" id="getProductsData" href="#">Last 1 day</a>
+    <a class="dropdown-item getProductsData" data-type="lastWeek" id="getProductsData" href="#">Last 1 week</a>
+    <a class="dropdown-item getProductsData" data-type="lastMonth" id="getProductsData" href="#">Last 1 month</a>
+  </div>
+</div>
+	<div class="row">
+		<table id="myTable" class="table table-striped">
+			<thead>
+				<tr>
+					<th>product_id</th>
+					<th>model</th>
+					<th>name</th>
+					<th>sku</th>
+					<th>quantity</th>
+					<th>manufacturer_id</th>
+					<th>wholesale_price</th>
+					<th>price</th>
+					<th>price_with_vat</th>
+					<th>vat_perc</th>
+					<th>exist_category_id</th>
+				</tr>
+			</thead>
+			<tfoot>
+            <tr>
+					<th>product_id</th>
+					<th>model</th>
+					<th>name</th>
+					<th>sku</th>
+					<th>quantity</th>
+					<th>manufacturer_id</th>
+					<th>wholesale_price</th>
+					<th>price</th>
+					<th>price_with_vat</th>
+					<th>vat_perc</th>
+					<th>exist_category_id</th>
+            </tr>
+        </tfoot>
+		</table>
+	</div>
+
+	{% block javascripts %}
+		<script type="text/javascript">
+$( ".getProductsData" ).click(function() {
+
+	$('#myTable').css('display', 'table');
+	$('.btn.btn-secondary.dropdown-toggle').css('display','none');
+	var type = $(this).data('type');
+	$('#myTable').DataTable({
+			ajax: {
+				url: '/prisma/products',
+				type: 'POST',
+				data: {type : type}
+			} ,       
+			columns: [
+				{ data: 'product_id' },
+				{ data: 'model' },
+				{ data: 'name' },
+				{ data: 'sku' },
+				{ data: 'quantity' },
+				{ data: 'manufacturer_id' },
+				{ data: 'wholesale_price' },
+				{ data: 'price' },
+				{ data: 'price_with_vat' },
+				{ data: 'vat_perc' },
+				{ data: 'exist_category_id' },
+			],
+		});
+	});
+	
+		</script>
+<style type="text/css">
+.selection_buttons{
+
+}
+.selection_buttons div{
+	padding: 5px 10px;
+	margin-right: 20px;
+	margin-bottom: 10px;
+}
+#myTable{
+	display:none;
+}
+</style>
+
+	{% endblock %}
+{% endblock %}
