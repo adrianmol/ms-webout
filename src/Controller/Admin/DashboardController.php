@@ -112,7 +112,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Catalog');
         yield MenuItem::subMenu('Products', 'fa-solid fa-layer-group')->setSubItems([
             MenuItem::linkToCrud('Products', 'fa-solid fa-layer-group', Products::class),
-             MenuItem::linkToUrl('Products Data Live', 'fa-solid fa-layer-group', 'admin/datatable')
+            MenuItem::linkToUrl('Products Data Live', 'fa-solid fa-layer-group', '/admin/datatable')
         ]);
 
         yield MenuItem::linkToCrud('Categories', 'fa-solid fa-layer-group', Categories::class);
@@ -125,8 +125,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Orders', 'fa fa-shopping-cart', Orders::class);
         
         yield MenuItem::section('Cron Jobs');
-        yield MenuItem::linkToUrl('Cron Jobs', 'fa fa-calendar-check-o', 'admin?crudAction=index&crudControllerFqcn=App\Controller\Admin\CronJobCrudController');
-        yield MenuItem::linkToUrl('Report', 'fa fa-calendar-check-o', 'admin?crudAction=index&crudControllerFqcn=App\Controller\Admin\CronReportCrudController');
+        yield MenuItem::linkToUrl('Cron Jobs', 'fa fa-calendar-check-o', '/admin?crudAction=index&crudControllerFqcn=App\Controller\Admin\CronJobCrudController');
+        yield MenuItem::linkToUrl('Report', 'fa fa-calendar-check-o', '/admin?crudAction=index&crudControllerFqcn=App\Controller\Admin\CronReportCrudController&sort[id]=DESC');
 
         yield MenuItem::section('');
         yield MenuItem::linkToCrud('Users', 'fas fa-user', User::class);
