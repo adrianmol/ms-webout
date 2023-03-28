@@ -21,6 +21,8 @@ class Prisma {
     public static string $INSERT_ORDER = 'InsertOrder';
     public static string $GET_ORDER_STATUS = 'GetOrderStatus';
 
+    public static string $UPLOAD_IMAGE_TO_FTP = 'UploadImageToFtp';
+
     public function index()
     {
 
