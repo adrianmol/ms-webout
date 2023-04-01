@@ -146,12 +146,12 @@ class OrdersController extends AbstractController
             'CustMobile'      => $order->getTelephone(),
             'CustTel'         => '',
             'CustDOY'         => $order->isIsInvoiceOrder() ? $order->getDoy() : '',
-            'CustPricelist'   => '03',
+            'CustPricelist'   => '02',
             'CustFax'         => '',
-            'CustBusiness'    => $order->isIsInvoiceOrder() ? $order->getProfession() : '2',
+            'CustBusiness'    => $order->isIsInvoiceOrder() ? $order->getProfession() : 'ΙΔΙΩΤΗΣ',
             'CustKepyo'       => $order->isIsInvoiceOrder() ? '01' : '05',
             'CustCountryCode' => 'EL',
-            'CustPaymentMethodCode' => '09'
+            'CustPaymentMethodCode' => $this->getPaymentMethodsForPrisma($order->getPaymentCode()),
         ];
     }
 
@@ -207,7 +207,7 @@ class OrdersController extends AbstractController
             return [];
         }
         foreach ($totals as $total) {
-            if (in_array($total->getCode(), $shipping)) {
+            if (in_array($total->getCode(), $shipping) && $total->getValue() > 0) {
                 $prisma_totals[] = [
                     'storecode' => '01',
                     'qty'       => 1,
@@ -218,7 +218,7 @@ class OrdersController extends AbstractController
                 ];
             }
 
-            if (in_array($total->getCode(), $fee)) {
+            if (in_array($total->getCode(), $fee) && $total->getValue() > 0) {
                 $prisma_totals[] = [
                     'storecode' => '03',
                     'qty'       => 1,
