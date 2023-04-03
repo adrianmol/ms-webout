@@ -33,7 +33,7 @@ class ProductsController extends AbstractController
     {
         $request_date = '';
         $type = $request->get('type') ?? '';
-        if(isset($type)){
+        if (isset($type)) {
             switch ($request->get('type')) {
                 case 'lastDay':
                     $request_date = date('m-d-Y H:m', strtotime("-1 day"));
@@ -50,9 +50,11 @@ class ProductsController extends AbstractController
         $entityManager = $this->doctrine->getManager();
 
         $products = $this->getProducts($request_date);
-        $return_data = array('product_inserted' => 0 , 'product_updated' => 0);
+        $disabled_products = $this->getDisabledProducts()['StoreItemsNoEshop'] ?? [];
 
-        if(empty($products['StoreDetails']))
+        $return_data = array('product_inserted' => 0, 'product_updated' => 0);
+
+        if (empty($products['StoreDetails']))
             return $this->json($return_data);
 
         foreach ($products['StoreDetails'] as $prisma_product) {
@@ -126,26 +128,25 @@ class ProductsController extends AbstractController
                     ->addProductDescription($productDescription);
 
                 if ($exist_category_id) $product->addCategory($exist_category_id);
-                
+
                 $entityManager->persist($product);
                 $entityManager->persist($productDescription);
-                
+
                 $return_data['product_inserted'] += 1;
-                $return_data['data'][] =[
+                $return_data['data'][] = [
                     'product_id' => $product_id,
                     'model'      => $model,
                     'name'       => $name,
-                    'description'=> $description,
+                    'description' => $description,
                     'sku'        => $sku,
                     'quantity'   => $quantity,
-                    'manufacturer_id'=> $manufacturer_id,
-                    'wholesale_price'=> $wholesale_price,
+                    'manufacturer_id' => $manufacturer_id,
+                    'wholesale_price' => $wholesale_price,
                     'price'      => $price,
-                    'price_with_vat'=> $price_with_vat,
+                    'price_with_vat' => $price_with_vat,
                     'vat_perc'   => $vat_perc,
                     'exist_category_id' => $exist_category_id ? $exist_category_id->getCategoryId() : '',
                 ];
-
             } else {
 
                 if (!empty($product_discount)) {
@@ -196,22 +197,25 @@ class ProductsController extends AbstractController
 
                 if ($exist_category_id) $exist_product->addCategory($exist_category_id);
 
+                if (!in_array($model, array_column($disabled_products, 'storecode'))) {
+                    $exist_product->setStatus(1);
+                }
+
                 $return_data['product_updated'] += 1;
-                $return_data['data'][] =[
+                $return_data['data'][] = [
                     'product_id' => $product_id,
                     'model'      => $model,
                     'name'       => $name,
-                    'description'=> $description,
+                    'description' => $description,
                     'sku'        => $sku,
                     'quantity'   => $quantity,
-                    'manufacturer_id'=> $manufacturer_id,
-                    'wholesale_price'=> $wholesale_price,
+                    'manufacturer_id' => $manufacturer_id,
+                    'wholesale_price' => $wholesale_price,
                     'price'      => $price,
-                    'price_with_vat'=> $price_with_vat,
+                    'price_with_vat' => $price_with_vat,
                     'vat_perc'   => $vat_perc,
                     'exist_category_id' => $exist_category_id ? $exist_category_id->getCategoryId() : '',
                 ];
-                
             }
         }
 
@@ -262,9 +266,9 @@ class ProductsController extends AbstractController
 
         $products = $this->getProducts();
 
-        $return_data = array('variation_inserted' => 0 , 'variation_updated' => 0);
+        $return_data = array('variation_inserted' => 0, 'variation_updated' => 0);
 
-        if(empty($products['StoreDetails'])){
+        if (empty($products['StoreDetails'])) {
             return $this->json($return_data);
         }
 
@@ -309,7 +313,6 @@ class ProductsController extends AbstractController
 
                 $entityManager->persist($product_variation);
                 $return_data['variation_inserted']  += 1;
-
             } else {
                 $exist_product_variation->setProductMasterId($product_master_id)
                     ->setVariationId($variation_id)
@@ -320,9 +323,7 @@ class ProductsController extends AbstractController
                     ->setQuantity($quantity);
 
                 $return_data['variation_updated']  += 1;
-
             }
-            
         }
 
         $entityManager->flush();
@@ -349,7 +350,7 @@ class ProductsController extends AbstractController
             $product_id = (int)$field['ApoId'];
 
             $exist_product = $this->doctrine->getRepository(\App\Entity\Products::class)->findOneBy(['product_id' => $product_id]);
-            
+
             if ($exist_product) {
 
                 $sku = isset($field['CustomField_13']) && !empty($field['CustomField_13']) ? (string)$field['CustomField_13'] : ''; //Κωδ.Ειδους από Προμηθευτή
@@ -359,10 +360,9 @@ class ProductsController extends AbstractController
                     ->setSku($sku)
                     ->setMpn($mpn);
 
-                if(isset($field['CustomField_5']) && $field['CustomField_5'] > 0)
-                {
+                if (isset($field['CustomField_5']) && $field['CustomField_5'] > 0) {
                     $exist_product->setSupplierQuantity($field['CustomField_5']);
-                }    
+                }
             }
         }
 
@@ -380,28 +380,36 @@ class ProductsController extends AbstractController
     {
 
         $repo_products = new \App\Repository\ProductsRepository($this->doctrine);
-        $products = $repo_products->getProductsForImages(['date_modified' => date('Y-m-d H:m', strtotime("-24 hours"))]);
+        $products = $repo_products->getProductsForImages(['date_modified' => date('Y-m-d H:m', strtotime("-4 hours"))]);
 
         $total_send_products = 20;
         $loops = 1;
-        $prisma_model['items'] = Array(); 
-        $return_data = Array();
+        $prisma_model['items'] = array();
+        $return_data = array();
 
-        foreach($products as $product)
-        {
-            if($loops > $total_send_products)
-            {
-                $this->uploadImageToFtp($prisma_model);
-                $return_data['upload'][] = $prisma_model;
+        foreach ($products as $product) {
+            if ($loops > $total_send_products) {
+                $response = $this->uploadImageToFtp($prisma_model);
+                $return_data['upload'][] = [
+                    'send'     => $prisma_model,
+                    'response' => $response
+                ];
 
                 $loops = 1;
-                $prisma_model['items'] = Array(); 
+                $prisma_model['items'] = array();
             }
 
             $prisma_model['items'][]['storecode'] = $product['model'];
-            
+
             $loops++;
         }
+
+        $response = $this->uploadImageToFtp($prisma_model);
+        $return_data['upload'][] = [
+            'send'     => $prisma_model,
+            'response' => $response
+        ];
+
         return $this->json($return_data);
     }
 
@@ -433,7 +441,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_DISABLED_PRODUCTS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => date('m-d-Y H:m', strtotime("-4 hours")),
+                'Date'       => date('m-d-Y H:m', strtotime("-1 days")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
@@ -456,7 +464,7 @@ class ProductsController extends AbstractController
 
     private function getProducts($date = '')
     {
-        $date = $date ? $date :date('m-d-Y H:m', strtotime("-4 hours"));
+        $date = $date ? $date : date('m-d-Y H:m', strtotime("-4 hours"));
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_PRODUCTS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
