@@ -134,7 +134,7 @@ class ProductsController extends AbstractController
                 'sku'           => $product['sku'],
                 'mpn'           => $product['mpn'],
                 'upc'           => '',
-                'ean'           => '',
+                'ean'           => $product['ean'],
                 'jan'           => '',
                 'isbn'          => '',
                 'location'      => '',
