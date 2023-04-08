@@ -38,8 +38,8 @@ class ManufacturerCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-            //IdField::new('id'),
-            IdField::new('manufacturer_id'),
+            IdField::new('id'),
+            IdField::new('manufacturer_id','Prisma Id'),
             TextField::new('name'),
             IdField::new('sort_order'),
             // ImageField::new('image'),
