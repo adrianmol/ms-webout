@@ -79,6 +79,7 @@ class ProductsController extends AbstractController
 
             $model           = $prisma_product['ItemCode'] ?? '';
             $sku             = !empty($prisma_product['ItemBarcode']) ? (string)$prisma_product['ItemBarcode'] : '';
+            $ean             = !empty($prisma_product['ItemAuxCode']) ? (string)$prisma_product['ItemAuxCode'] : '';
             $quantity        = (int)$prisma_product['ItemStock'] ?? 0;
             $manufacturer_id = (int)$prisma_product['ItemManufacturerId'] ?? 0;
             $wholesale_price = round($prisma_product['ItemWholesale'], 4) ?? 0.0000;
@@ -115,6 +116,7 @@ class ProductsController extends AbstractController
                 $product->setProductID($product_id)
                     ->setModel($model)
                     ->setSku($sku)
+                    ->setEan($ean)
                     ->setQuantity($quantity)
                     ->setManufacturerId($manufacturer_id)
                     ->setWholesalePrice($wholesale_price)
@@ -181,7 +183,7 @@ class ProductsController extends AbstractController
                 }
 
                 $exist_product->setModel($model)
-                    ->setSku($sku)
+                    ->setEan($ean)
                     ->setQuantity($quantity)
                     ->setManufacturerId($manufacturer_id)
                     ->setWholesalePrice($wholesale_price)

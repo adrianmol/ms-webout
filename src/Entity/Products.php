@@ -70,6 +70,9 @@ class Products
     #[ORM\Column(nullable: true)]
     private ?int $supplier_quantity = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ean = null;
+
     public function __construct()
     {
         $this->productDescriptions = new ArrayCollection();
@@ -342,6 +345,18 @@ class Products
     public function setSupplierQuantity(?int $supplier_quantity): self
     {
         $this->supplier_quantity = $supplier_quantity;
+
+        return $this;
+    }
+
+    public function getEan(): ?string
+    {
+        return $this->ean;
+    }
+
+    public function setEan(?string $ean): self
+    {
+        $this->ean = $ean;
 
         return $this;
     }
