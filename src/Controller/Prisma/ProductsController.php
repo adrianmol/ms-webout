@@ -191,6 +191,7 @@ class ProductsController extends AbstractController
                     ->setPriceWithVat($price_with_vat)
                     ->setVatPerc($vat_perc)
                     ->setWeight($weight)
+                    ->setStatus(1)
                     ->setDateModified(new \DateTime())
                     ->getProductDescriptions()
                     ->get(0)
@@ -198,10 +199,6 @@ class ProductsController extends AbstractController
                     ->setDescription($description);
 
                 if ($exist_category_id) $exist_product->addCategory($exist_category_id);
-
-                if (!in_array($model, array_column($disabled_products, 'storecode'))) {
-                    $exist_product->setStatus(1);
-                }
 
                 $return_data['product_updated'] += 1;
                 $return_data['data'][] = [
@@ -238,9 +235,16 @@ class ProductsController extends AbstractController
             return $this->json($return_data);
         }
 
-        foreach ($products['StoreItemsNoEshop'] as $prisma_product) {
+        if(isset($products['StoreItemsNoEshop']['storecode']))
+        {
+            $products = [$products['StoreItemsNoEshop']];
+        }else{
+            $products = $products['StoreItemsNoEshop'];
+        }
 
-            $model = (string)$prisma_product['storecode'];
+        foreach ($products as $prisma_product) {
+
+            $model = (string)$prisma_product['storecode'] ?? '';
 
             $exist_product = $this->doctrine->getRepository(\App\Entity\Products::class)->findOneBy(['model' => $model]);
 
