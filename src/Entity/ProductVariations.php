@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ProductVariationsRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProductVariationsRepository::class)]
@@ -33,6 +34,15 @@ class ProductVariations
 
     #[ORM\Column(length: 255)]
     private ?string $barcode = null;
+
+    #[ORM\Column(type: Types::SMALLINT,options:['default'=>0])]
+    private ?int $status = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $sku = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $mpn = null;
 
     public function getId(): ?int
     {
@@ -119,6 +129,42 @@ class ProductVariations
     public function setBarcode(string $barcode): self
     {
         $this->barcode = $barcode;
+
+        return $this;
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(int $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getSku(): ?string
+    {
+        return $this->sku;
+    }
+
+    public function setSku(?string $sku): self
+    {
+        $this->sku = $sku;
+
+        return $this;
+    }
+
+    public function getMpn(): ?string
+    {
+        return $this->mpn;
+    }
+
+    public function setMpn(string $mpn): self
+    {
+        $this->mpn = $mpn;
 
         return $this;
     }

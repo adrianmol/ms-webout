@@ -251,9 +251,20 @@ class ProductsController extends AbstractController
             $return_data['product_disabled'] += 1;
 
             if ($exist_product) {
+
                 $exist_product
                     ->setStatus(0)
                     ->setDateModified(new \DateTime());
+            }else{
+
+                $exist_variant = $this->doctrine->getRepository(\App\Entity\ProductVariations::class)->findOneBy(['barcode' => $model]);
+
+                if ($exist_variant) {
+
+                    $exist_variant
+                        ->setStatus(0)
+                        ;
+                }
             }
         }
 
@@ -315,6 +326,7 @@ class ProductsController extends AbstractController
                     ->setOptionValueId($option_value_description->getId())
                     ->setBarcode($model)
                     ->setPrice($price_with_vat)
+                    ->setStatus(1)
                     ->setQuantity($quantity);
 
                 $entityManager->persist($product_variation);
@@ -325,6 +337,7 @@ class ProductsController extends AbstractController
                     ->setOptionId($option_value_description->getOptionId())
                     ->setOptionValueId($option_value_description->getId())
                     ->setBarcode($model)
+                    ->setStatus(1)
                     ->setPrice($price_with_vat)
                     ->setQuantity($quantity);
 
@@ -368,6 +381,17 @@ class ProductsController extends AbstractController
 
                 if (isset($field['CustomField_5']) && $field['CustomField_5'] > 0) {
                     $exist_product->setSupplierQuantity($field['CustomField_5']);
+                }
+            }else{
+                $exist_variant = $this->doctrine->getRepository(\App\Entity\ProductVariations::class)->findOneBy(['variation_id' => $product_id]);
+
+                if($exist_variant){
+                    $sku = isset($field['CustomField_13']) && !empty($field['CustomField_13']) ? (string)$field['CustomField_13'] : ''; //Κωδ.Ειδους από Προμηθευτή
+                    $mpn = isset($field['CustomField_15']) && !empty($field['CustomField_15']) ? (string)$field['CustomField_15'] : ''; //Κωδ.Είδους Κατασκευαστή
+    
+                    $exist_variant
+                        ->setSku($sku)
+                        ->setMpn($mpn);
                 }
             }
         }
@@ -447,7 +471,7 @@ class ProductsController extends AbstractController
         $response = $this->client->request('POST', Prisma::$URL . '/' . Prisma::$GET_DISABLED_PRODUCTS, [
             'body' => [
                 'SiteKey'    => Prisma::$SITE_KEY,
-                'Date'       => date('m-d-Y H:m', strtotime("-1 days")),
+                'Date'       => date('m-d-Y', strtotime("-1 days")),
                 'StorageCode' => Prisma::$STORAGE_CODE[0]
             ]
         ]);
