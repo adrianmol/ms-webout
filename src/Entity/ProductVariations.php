@@ -44,6 +44,9 @@ class ProductVariations
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $mpn = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ean = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -165,6 +168,18 @@ class ProductVariations
     public function setMpn(string $mpn): self
     {
         $this->mpn = $mpn;
+
+        return $this;
+    }
+
+    public function getEan(): ?string
+    {
+        return $this->ean;
+    }
+
+    public function setEan(?string $ean): self
+    {
+        $this->ean = $ean;
 
         return $this;
     }

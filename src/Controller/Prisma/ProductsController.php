@@ -306,6 +306,7 @@ class ProductsController extends AbstractController
             $product_master_id = $prisma_product['ItemIdMaster'] ?? 0;
             $model           = $prisma_product['ItemCode'] ?? '';
             $sku             = !empty($prisma_product['ItemBarcode']) ? (string)$prisma_product['ItemBarcode'] : '';
+            $ean             = !empty($prisma_product['ItemAuxCode']) ? (string)$prisma_product['ItemAuxCode'] : '';
             $quantity        = (int)$prisma_product['ItemStock'] ?? 0;
             $price_with_vat  = round($prisma_product['ItemRetailVat'], 4) ?? 0.000;
             $weight          = (float)$prisma_product['ItemWeight'] ?? 0.000;
@@ -327,6 +328,7 @@ class ProductsController extends AbstractController
                     ->setBarcode($model)
                     ->setPrice($price_with_vat)
                     ->setStatus(1)
+                    ->setEan($ean)
                     ->setQuantity($quantity);
 
                 $entityManager->persist($product_variation);
@@ -338,6 +340,7 @@ class ProductsController extends AbstractController
                     ->setOptionValueId($option_value_description->getId())
                     ->setBarcode($model)
                     ->setStatus(1)
+                    ->setEan($ean)
                     ->setPrice($price_with_vat)
                     ->setQuantity($quantity);
 
