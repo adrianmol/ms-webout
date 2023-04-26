@@ -47,6 +47,9 @@ class ProductVariations
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $ean = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $supplier_quantity = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -180,6 +183,18 @@ class ProductVariations
     public function setEan(?string $ean): self
     {
         $this->ean = $ean;
+
+        return $this;
+    }
+
+    public function getSupplierQuantity(): ?int
+    {
+        return $this->supplier_quantity;
+    }
+
+    public function setSupplierQuantity(?int $supplier_quantity): self
+    {
+        $this->supplier_quantity = $supplier_quantity;
 
         return $this;
     }
