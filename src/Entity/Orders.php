@@ -145,6 +145,12 @@ class Orders
     #[ORM\Column(nullable: true)]
     private ?int $erp_status_id = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $voucher_number = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $erp_shipping_method = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -669,6 +675,30 @@ class Orders
     public function setErpStatusId(?int $erp_status_id): self
     {
         $this->erp_status_id = $erp_status_id;
+
+        return $this;
+    }
+
+    public function getVoucherNumber(): ?string
+    {
+        return $this->voucher_number;
+    }
+
+    public function setVoucherNumber(?string $voucher_number): self
+    {
+        $this->voucher_number = $voucher_number;
+
+        return $this;
+    }
+
+    public function getErpShippingMethod(): ?string
+    {
+        return $this->erp_shipping_method;
+    }
+
+    public function setErpShippingMethod(?string $erp_shipping_method): self
+    {
+        $this->erp_shipping_method = $erp_shipping_method;
 
         return $this;
     }
