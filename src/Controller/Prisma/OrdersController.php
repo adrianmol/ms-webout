@@ -107,8 +107,8 @@ class OrdersController extends AbstractController
             {
 
                 $repo_order->setErpStatusId($prisma_order['Status'])
-                ->setVoucherNumber($prisma_order['VoucherNo'])
-                ->setErpShippingMethod($prisma_order['ShippingMethod']);
+                ->setVoucherNumber(!empty($prisma_order['VoucherNo']) ? $prisma_order['VoucherNo'] : '')
+                ->setErpShippingMethod(!empty($prisma_order['ShippingMethod']) ? $prisma_order['ShippingMethod'] : '');
 
                 $data_eshop['orders'][] = [
                     'prisma_id' => $repo_order->getErpOrderId(),
