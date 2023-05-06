@@ -106,12 +106,16 @@ class OrdersController extends AbstractController
             if(!empty($repo_order) && $repo_order->getErpStatusID() != $prisma_order['Status'])
             {
 
-                $repo_order->setErpStatusId($prisma_order['Status']);
+                $repo_order->setErpStatusId($prisma_order['Status'])
+                ->setVoucherNumber(!empty($prisma_order['VoucherNo']) ? $prisma_order['VoucherNo'] : '')
+                ->setErpShippingMethod(!empty($prisma_order['ShippingMethod']) ? $prisma_order['ShippingMethod'] : '');
 
                 $data_eshop['orders'][] = [
                     'prisma_id' => $repo_order->getErpOrderId(),
                     'order_id'  => $repo_order->getEshopOrderId(),
-                    'status'    => $prisma_order['Status']
+                    'status'    => $prisma_order['Status'],
+                    'voucher_number'      => $repo_order->getVoucherNumber(),
+                    'erp_shipping_method' => $repo_order->getErpShippingMethod(),
                 ];
 
                 $entityManager->flush();
@@ -123,7 +127,7 @@ class OrdersController extends AbstractController
         }
 
         //dd($_orders,$orders_status_prisma,$data_eshop);
-        return $this->json([]);
+        return $this->json($data_eshop);
     }
 
     private function prepareCustomer($order)

@@ -395,6 +395,10 @@ class ProductsController extends AbstractController
                     $exist_variant
                         ->setSku($sku)
                         ->setMpn($mpn);
+
+                    if (isset($field['CustomField_5']) && $field['CustomField_5'] > 0) {
+                        $exist_variant->setSupplierQuantity($field['CustomField_5']);
+                    }
                 }
             }
         }
