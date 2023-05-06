@@ -133,7 +133,7 @@ class Orders
     #[ORM\Column]
     private ?bool $is_invoice_order = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(nullable: true, type:"bigint" )]
     private ?int $vat_number = null;
 
     #[ORM\Column(length: 64, nullable: true)]

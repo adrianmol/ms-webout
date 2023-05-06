@@ -275,10 +275,10 @@ class OrdersController extends AbstractController
     {
 
         $shippings_prisma = [
-            'ΑΠΟΣΤΟΛΗ ΜΕ COURIER'  => 'xshippingpro.xshippingpro1',
-            'ΑΠΟΣΤΟΛΗ ΜΕ COURIER'  => 'xshippingpro.xshippingpro3',
-            'ΑΠΟΣΤΟΛΗ ΜΕ COURIER'  => 'xshippingpro.xshippingpro2',
-            'ΠΑΡΑΛΑΒΗ ΑΠΟ ΤΟ ΚΑΤΑΣΤΗΜΑ'  => 'xshippingpro.xshippingpro4',
+            'ΕΛΤΑ Courier ΠΟΡΤΑ ΠΟΡΤΑ'  => 'xshippingpro.xshippingpro1',
+            'ΕΛΤΑ Courier ΠΟΡΤΑ ΠΟΡΤΑ'  => 'xshippingpro.xshippingpro3',
+            'ΕΛΤΑ Courier ΠΟΡΤΑ ΠΟΡΤΑ'  => 'xshippingpro.xshippingpro2',
+            'Άμεση Παραλαβή'            => 'xshippingpro.xshippingpro4',
         ];
 
         if (!isset($find_shipping_method) && !isset($shippings_prisma[$find_shipping_method])) {
